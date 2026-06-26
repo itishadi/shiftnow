@@ -1,16 +1,21 @@
+let periods = [
+  {
+    id: 1,
+    name: "USK Höst (2026-08-31 - 2026-11-29)"
+  }
+];
+
 export function getPeriods() {
-  return [
-    {
-      id: 1,
-      name: "Summer Schedule",
-      start: "2026-07-01",
-      end: "2026-07-31"
-    },
-    {
-      id: 2,
-      name: "Autumn Schedule",
-      start: "2026-08-01",
-      end: "2026-10-31"
-    }
-  ];
+  return periods;
 }
+
+export function addPeriod(data) {
+  const newPeriod = {
+    id: Date.now(),
+    name: `${data.name} (${data.from} - ${data.to})`,
+    ...data
+  };
+
+  periods.push(newPeriod);
+}
+``

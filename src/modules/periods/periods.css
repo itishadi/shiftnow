@@ -1,0 +1,13 @@
+.green-form {
+  background: #b7e28c;
+  padding: 20px;
+  border: 2px solid #6ea843;
+  margin-top: 15px;
+}
+
+.green-form input,
+.green-form select {
+  width: 300px;
+  padding: 6px;
+  margin-bottom: 10px;
+}

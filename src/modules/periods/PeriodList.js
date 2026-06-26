@@ -1,23 +1,16 @@
-export function PeriodList(periods, onOpen) {
+export function PeriodList(periods, onSelect) {
   const container = document.createElement("div");
 
-  const title = document.createElement("h2");
-  title.textContent = "Schedule Periods";
-  container.appendChild(title);
-
   periods.forEach(p => {
-    const card = document.createElement("div");
-    card.className = "period-card";
+    const div = document.createElement("div");
+    div.className = "period-card";
+    div.textContent = p.name;
 
-    card.innerHTML = `
-      <strong>${p.name}</strong><br/>
-      ${p.start} → ${p.end}
-    `;
+    div.onclick = () => onSelect(p.id);
 
-    card.onclick = () => onOpen(p.id);
-
-    container.appendChild(card);
+    container.appendChild(div);
   });
 
   return container;
 }
+``

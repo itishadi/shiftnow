@@ -1,5 +1,5 @@
 export const state = {
-  currentView: "home", 
+  currentView: "home",
   periods: [],
   currentPeriod: null
 };
@@ -7,4 +7,3 @@ export const state = {
 export function setState(key, value) {
   state[key] = value;
 }
-``
