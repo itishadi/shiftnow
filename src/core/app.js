@@ -1,29 +1,43 @@
+
 import { getPeriods, addPeriod } from "../modules/periods/periodService.js";
 import { PeriodList } from "../modules/periods/PeriodList.js";
 import { CreatePeriodView } from "../modules/periods/CreatePeriodView.js";
 import { ScheduleGrid } from "../modules/planning/ScheduleGrid.js";
-import { state, setState } from "../shared/state/store.js";
+import { EmployeeSelector } from "../modules/employees/EmployeeSelector.js";
+import { state, setState } from "../modules/shared/state/store.js";
 
 const root = document.getElementById("app");
 
 function init() {
-  setState("periods", getPeriods());
+  // Ladda perioder från localStorage om de finns
+  const saved = localStorage.getItem("shiftnow_periods");
+  if (saved) {
+    setState("periods", JSON.parse(saved));
+  } else {
+    setState("periods", getPeriods());
+  }
 
+  // Navigationsknappar
   document.getElementById("navHome").onclick = () => {
     setState("currentView", "home");
     render();
   };
-
   document.getElementById("navPlanning").onclick = () => {
     setState("currentView", "planning");
     render();
   };
+  document.getElementById("navEmployees").onclick = () => {
+    setState("currentView", "employees");
+    render();
+  };
 
+  setState("currentView", "home");
   render();
 }
 
 function selectPeriod(id) {
   setState("currentPeriod", id);
+  setState("currentView", "grid");
   render();
 }
 
@@ -35,43 +49,64 @@ function createNewPeriod() {
 function render() {
   root.innerHTML = "";
 
-  if (state.currentView === "home") {
-    root.innerHTML = "<h2>Welcome to ShiftNow</h2>";
-  }
+  switch (state.currentView) {
+    case "home":
+      root.innerHTML = `<h2>🏠 Välkommen till ShiftNow</h2><p>Välj en funktion i menyn till vänster.</p>`;
+      break;
 
-  if (state.currentView === "planning") {
-    const title = document.createElement("h2");
-    title.textContent = "Schemaplanering";
-    root.appendChild(title);
+    case "planning": {
+      const title = document.createElement("h2");
+      title.textContent = "📅 Schemaperioder";
+      root.appendChild(title);
 
-    const periods = PeriodList(state.periods, selectPeriod);
-    root.appendChild(periods);
+      const list = PeriodList(state.periods, selectPeriod);
+      root.appendChild(list);
 
-    const btn = document.createElement("button");
-    btn.textContent = "Ny period";
-    btn.onclick = createNewPeriod;
-    root.appendChild(btn);
-  }
+      const btn = document.createElement("button");
+      btn.textContent = "+ Ny period";
+      btn.onclick = createNewPeriod;
+      root.appendChild(btn);
+      break;
+    }
 
-  if (state.currentView === "createPeriod") {
-    const view = CreatePeriodView({
-      onSave: (data) => {
-        addPeriod(data);
-        setState("periods", getPeriods());
-        setState("currentView", "grid");
-        render();
-      },
-      onCancel: () => {
-        setState("currentView", "planning");
-        render();
+    case "createPeriod": {
+      const view = CreatePeriodView({
+        onSave: (data) => {
+          addPeriod(data);
+          setState("periods", getPeriods());
+          // Spara till localStorage
+          localStorage.setItem("shiftnow_periods", JSON.stringify(getPeriods()));
+          setState("currentView", "planning");
+          render();
+        },
+        onCancel: () => {
+          setState("currentView", "planning");
+          render();
+        }
+      });
+      root.appendChild(view);
+      break;
+    }
+
+    case "grid": {
+      const period = state.periods.find(p => p.id === state.currentPeriod);
+      if (!period) {
+        root.innerHTML = "<p>Perioden hittades inte.</p>";
+        break;
       }
-    });
+      const grid = ScheduleGrid(period);
+      root.appendChild(grid);
+      break;
+    }
 
-    root.appendChild(view);
-  }
+    case "employees": {
+      const selector = EmployeeSelector();
+      root.appendChild(selector);
+      break;
+    }
 
-  if (state.currentView === "grid") {
-    root.appendChild(ScheduleGrid());
+    default:
+      root.innerHTML = "<p>Okänd vy.</p>";
   }
 }
 

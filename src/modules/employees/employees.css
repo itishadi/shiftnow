@@ -1,0 +1,41 @@
+cat > src/modules/employees/employees.css 
+.employee-card {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin: 5px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.employee-card button {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.employee-card button:hover {
+  background: #c0392b;
+}
+.employee-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+.employee-form input {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.employee-form button {
+  background: #2ecc71;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}

@@ -1,14 +1,12 @@
-export function ScheduleGrid() {
+
+export function ScheduleGrid(period) {
   const container = document.createElement("div");
 
   container.innerHTML = `
-    <div class="grid-header">
-      Inställningar för Schemaperiod
-    </div>
+    <div class="grid-header">Schema för: ${period.name}</div>
   `;
 
   const table = document.createElement("table");
-
   table.innerHTML = `
     <tr>
       <th>Namn</th>
@@ -20,15 +18,9 @@ export function ScheduleGrid() {
     </tr>
   `;
 
-  let rows = [
-    {
-      name: "Ellie",
-      from: "2026-06-26",
-      to: "Öppet",
-      days: "7",
-      planFrom: "",
-      planTo: "Öppet"
-    }
+  // Hämta rader från perioden, eller sätt default
+  let rows = period.rows && period.rows.length > 0 ? period.rows : [
+    { name: "Ellie", from: "2026-06-26", to: "Öppet", days: "7", planFrom: "", planTo: "Öppet" }
   ];
 
   function render() {
@@ -36,14 +28,9 @@ export function ScheduleGrid() {
 
     rows.forEach((r, i) => {
       const tr = document.createElement("tr");
-
       tr.innerHTML = `
-        <td><input value="${r.name}" data-i="${i}" data-f="name"></td>
-
-        <td>
-          <input type="date" value="${r.from}" data-i="${i}" data-f="from">
-        </td>
-
+        <td><input value="${r.name || ''}" data-i="${i}" data-f="name"></td>
+        <td><input type="date" value="${r.from || ''}" data-i="${i}" data-f="from"></td>
         <td>
           <select data-i="${i}" data-f="toMode">
             <option value="date" ${r.to !== "Öppet" ? "selected" : ""}>Datum</option>
@@ -53,13 +40,8 @@ export function ScheduleGrid() {
                  data-i="${i}" data-f="toDate"
                  style="${r.to === "Öppet" ? "display:none" : ""}">
         </td>
-
-        <td><input value="${r.days}" data-i="${i}" data-f="days"></td>
-
-        <td>
-          <input type="date" value="${r.planFrom}" data-i="${i}" data-f="planFrom">
-        </td>
-
+        <td><input value="${r.days || 0}" data-i="${i}" data-f="days"></td>
+        <td><input type="date" value="${r.planFrom || ''}" data-i="${i}" data-f="planFrom"></td>
         <td>
           <select data-i="${i}" data-f="planToMode">
             <option value="date" ${r.planTo !== "Öppet" ? "selected" : ""}>Datum</option>
@@ -70,11 +52,10 @@ export function ScheduleGrid() {
                  style="${r.planTo === "Öppet" ? "display:none" : ""}">
         </td>
       `;
-
       table.appendChild(tr);
     });
 
-    // ✅ INPUT ÄNDRING
+    // Händelser
     table.querySelectorAll("input").forEach(el => {
       el.oninput = (e) => {
         const i = e.target.dataset.i;
@@ -82,22 +63,17 @@ export function ScheduleGrid() {
         rows[i][f] = e.target.value;
       };
     });
-
-    // ✅ SELECT ÄNDRING
     table.querySelectorAll("select").forEach(el => {
       el.onchange = (e) => {
         const i = e.target.dataset.i;
         const f = e.target.dataset.f;
         const val = e.target.value;
-
         if (f === "toMode") {
           rows[i].to = val === "open" ? "Öppet" : "";
         }
-
         if (f === "planToMode") {
           rows[i].planTo = val === "open" ? "Öppet" : "";
         }
-
         render();
       };
     });
@@ -106,34 +82,36 @@ export function ScheduleGrid() {
   render();
   container.appendChild(table);
 
-  // ✅ BUTTONS
   const actions = document.createElement("div");
   actions.className = "grid-actions";
-
   actions.innerHTML = `
     <button id="add">Lägg till person</button>
     <button id="remove">Ta bort</button>
-    <button>Spara</button>
-    <button>Spara/Planera schema</button>
+    <button id="save">Spara schema</button>
+    <button id="plan">Planera</button>
   `;
-
   container.appendChild(actions);
 
-  // ✅ ADD (kopiera första raden)
   actions.querySelector("#add").onclick = () => {
-    const first = rows[0];
-
-    rows.push({
-      ...first
-    });
-
+    const first = rows[0] || { name: "", from: "", to: "", days: 0, planFrom: "", planTo: "" };
+    rows.push({ ...first });
     render();
   };
-
-  // ✅ REMOVE
   actions.querySelector("#remove").onclick = () => {
-    rows.pop();
-    render();
+    if (rows.length > 1) { rows.pop(); render(); }
+    else alert("Måste ha minst en rad.");
+  };
+  actions.querySelector("#save").onclick = () => {
+    // Uppdatera periodens rows och spara
+    period.rows = rows;
+    // Spara till localStorage via periodService
+    import("../periods/periodService.js").then(({ savePeriodsToStorage }) => {
+      savePeriodsToStorage();
+      alert("Schema sparat!");
+    });
+  };
+  actions.querySelector("#plan").onclick = () => {
+    alert("Planeringslogik – här kan du generera schema utifrån personalens tillgänglighet.");
   };
 
   return container;

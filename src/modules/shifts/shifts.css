@@ -1,0 +1,11 @@
+cat > src/modules/shifts/shifts.css 
+/* Stilar för passhantering – kan utökas senare */
+.shift-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 4px 0;
+}
+.shift-row select, .shift-row input {
+  padding: 4px;
+}

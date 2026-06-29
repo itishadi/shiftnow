@@ -1,31 +1,38 @@
+cat > src/modules/planning/planning.css 
 .grid-header {
   background: #4caf00;
   color: white;
   padding: 6px;
   font-weight: bold;
 }
-
 .grid-actions {
   background: #b7e28c;
   padding: 8px;
   margin-top: 5px;
 }
-
 table {
   width: 100%;
   border-collapse: collapse;
 }
-
 td, th {
   border: 1px solid #ccc;
   padding: 4px;
-  font-size: 11px;
+  font-size: 12px;
 }
-
-/* ✅ VIKTIGT (fixar ditt problem) */
 input, select {
   width: 100%;
   border: 1px solid #999;
   background: white;
   font-size: 11px;
+}
+.period-card {
+  background: #f0f7ff;
+  padding: 10px;
+  margin: 6px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  border-left: 4px solid #3498db;
+}
+.period-card:hover {
+  background: #d4e6ff;
 }
