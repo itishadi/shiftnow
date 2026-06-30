@@ -1,5 +1,3 @@
-cat > src/modules/shifts/shifts.css 
-/* Stilar för passhantering – kan utökas senare */
 .shift-row {
   display: flex;
   gap: 10px;

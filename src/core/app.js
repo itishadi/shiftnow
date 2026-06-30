@@ -1,15 +1,14 @@
-
 import { getPeriods, addPeriod } from "../modules/periods/periodService.js";
 import { PeriodList } from "../modules/periods/PeriodList.js";
 import { CreatePeriodView } from "../modules/periods/CreatePeriodView.js";
 import { ScheduleGrid } from "../modules/planning/ScheduleGrid.js";
+import { ScheduleOverview } from "../modules/planning/ScheduleOverview.js";
 import { EmployeeSelector } from "../modules/employees/EmployeeSelector.js";
 import { state, setState } from "../modules/shared/state/store.js";
 
 const root = document.getElementById("app");
 
 function init() {
-  // Ladda perioder från localStorage om de finns
   const saved = localStorage.getItem("shiftnow_periods");
   if (saved) {
     setState("periods", JSON.parse(saved));
@@ -17,7 +16,6 @@ function init() {
     setState("periods", getPeriods());
   }
 
-  // Navigationsknappar
   document.getElementById("navHome").onclick = () => {
     setState("currentView", "home");
     render();
@@ -30,6 +28,8 @@ function init() {
     setState("currentView", "employees");
     render();
   };
+
+  window.addEventListener("navigate", render);
 
   setState("currentView", "home");
   render();
@@ -74,7 +74,6 @@ function render() {
         onSave: (data) => {
           addPeriod(data);
           setState("periods", getPeriods());
-          // Spara till localStorage
           localStorage.setItem("shiftnow_periods", JSON.stringify(getPeriods()));
           setState("currentView", "planning");
           render();
@@ -96,6 +95,12 @@ function render() {
       }
       const grid = ScheduleGrid(period);
       root.appendChild(grid);
+      break;
+    }
+
+    case "overview": {
+      const overview = ScheduleOverview(state.periods, state.currentPeriod);
+      root.appendChild(overview);
       break;
     }
 

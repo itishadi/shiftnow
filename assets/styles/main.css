@@ -1,5 +1,3 @@
-cat > assets/styles/main.css 
-/* ===== GLOBAL ===== */
 html, body {
   height: 100%;
   margin: 0;
@@ -8,7 +6,6 @@ html, body {
 }
 * { box-sizing: border-box; }
 
-/* ===== LAYOUT ===== */
 .layout {
   display: flex;
   height: 100vh;
@@ -50,11 +47,15 @@ html, body {
   padding: 20px;
   background: #ecf0f1;
 }
+
 #app {
   flex: 1;
-  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   background: white;
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  min-height: 0;   /* 🔥 viktigt */
 }

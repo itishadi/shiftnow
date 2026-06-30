@@ -1,5 +1,3 @@
-cat > src/modules/shifts/shiftService.js <<'EOF'
-// Här kan du hantera pass, t.ex. lägga till, ta bort, schemalägga
 let shifts = [];
 
 export function getShifts() {

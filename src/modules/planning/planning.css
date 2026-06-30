@@ -1,38 +1,78 @@
-cat > src/modules/planning/planning.css 
-.grid-header {
-  background: #4caf00;
+.schedule-overview {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.overview-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: #2c3e50;
   color: white;
-  padding: 6px;
-  font-weight: bold;
+  border-radius: 4px 4px 0 0;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 10px;
 }
-.grid-actions {
-  background: #b7e28c;
-  padding: 8px;
-  margin-top: 5px;
+
+.overview-topbar select {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  font-size: 14px;
+  background: #34495e;
+  color: white;
+  cursor: pointer;
 }
-table {
+.overview-topbar select:hover {
+  background: #1abc9c;
+}
+.overview-topbar select option {
+  background: white;
+  color: #333;
+}
+
+.calendar-wrapper {
+  flex: 1;
+  overflow: auto;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  background: white;
+  min-height: 0;
+}
+
+.calendar-wrapper table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 12px;
+  min-width: 800px;
 }
-td, th {
+
+.calendar-wrapper th,
+.calendar-wrapper td {
   border: 1px solid #ccc;
   padding: 4px;
-  font-size: 12px;
+  text-align: center;
 }
-input, select {
-  width: 100%;
-  border: 1px solid #999;
-  background: white;
-  font-size: 11px;
+
+.calendar-wrapper th {
+  background: #e8e8e8;
+  font-weight: bold;
 }
-.period-card {
-  background: #f0f7ff;
-  padding: 10px;
-  margin: 6px 0;
-  border-radius: 6px;
-  cursor: pointer;
-  border-left: 4px solid #3498db;
-}
-.period-card:hover {
-  background: #d4e6ff;
+
+.overview-footer {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  background: #cfe8a9;
+  border-top: 1px solid #ccc;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  border-radius: 0 0 4px 4px;
+  flex-wrap: wrap;
 }
