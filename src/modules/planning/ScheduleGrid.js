@@ -4,39 +4,41 @@ export function ScheduleGrid(period) {
   const container = document.createElement("div");
 
   container.innerHTML = `
-    <div class="grid-header">Schema för: ${period.name}</div>
-    <div class="grid-scroll-wrapper">
-      <table id="scheduleTable">
-        <thead>
-          <tr>
-            <th style="min-width:120px;">Namn</th>
-            <th style="min-width:110px;">Personnr</th>
-            <th style="min-width:110px;">From</th>
-            <th style="min-width:120px;">Tom</th>
-            <th style="min-width:120px;">Passtyp</th>
-            <th style="min-width:110px;">Rullande</th>
-            <th style="min-width:100px;">Tid</th>
-            <th style="min-width:140px;">Kalenderdagsfaktor</th>
-            <th style="min-width:110px;">Dygnsvila</th>
-            <th style="min-width:110px;">Veckovila</th>
-            <th style="min-width:160px;">Begränsningsperiod (deltid)</th>
-            <th style="min-width:120px;">Planering</th>
-            <th style="min-width:130px;">Manuellt datum/kl</th>
-            <th style="min-width:130px;">Manuellt startdatum</th>
-            <th style="min-width:100px;">Perioddagar</th>
-            <th style="min-width:110px;">Plan.from</th>
-            <th style="min-width:120px;">Plan.tom</th>
-          </tr>
-        </thead>
-        <tbody id="scheduleBody"></tbody>
-      </table>
-    </div>
-    <div class="grid-actions">
-      <button id="add">Lägg till person</button>
-      <button id="remove">Ta bort</button>
-      <button id="save">Spara schema</button>
-      <button id="plan">Planera</button>
-      <button id="importStaff">📥 Importera personal (välj)</button>
+    <div class="grid-container">
+      <div class="grid-header">Schema för: ${period.name}</div>
+      <div class="grid-scroll-wrapper">
+        <table id="scheduleTable">
+          <thead>
+            <tr>
+              <th style="min-width:120px;">Namn</th>
+              <th style="min-width:110px;">Personnr</th>
+              <th style="min-width:110px;">From</th>
+              <th style="min-width:120px;">Tom</th>
+              <th style="min-width:120px;">Passtyp</th>
+              <th style="min-width:110px;">Rullande</th>
+              <th style="min-width:100px;">Tid</th>
+              <th style="min-width:140px;">Kalenderdagsfaktor</th>
+              <th style="min-width:110px;">Dygnsvila</th>
+              <th style="min-width:110px;">Veckovila</th>
+              <th style="min-width:160px;">Begränsningsperiod (deltid)</th>
+              <th style="min-width:120px;">Planering</th>
+              <th style="min-width:130px;">Manuellt datum/kl</th>
+              <th style="min-width:130px;">Manuellt startdatum</th>
+              <th style="min-width:100px;">Perioddagar</th>
+              <th style="min-width:110px;">Plan.from</th>
+              <th style="min-width:120px;">Plan.tom</th>
+            </tr>
+          </thead>
+          <tbody id="scheduleBody"></tbody>
+        </table>
+      </div>
+      <div class="grid-actions">
+        <button id="add">Lägg till person</button>
+        <button id="remove">Ta bort</button>
+        <button id="save">Spara schema</button>
+        <button id="plan">Planera</button>
+        <button id="importStaff">📥 Importera personal (välj)</button>
+      </div>
     </div>
   `;
 
@@ -131,7 +133,7 @@ export function ScheduleGrid(period) {
     });
   }
 
-  // ----- Modal för att importera personal (samma som i CreatePeriodView) -----
+  // ===== MODAL FÖR IMPORT =====
   function showImportModal() {
     const employees = getEmployees();
     if (employees.length === 0) {
@@ -198,8 +200,8 @@ export function ScheduleGrid(period) {
         alert("Inga personer valda.");
         return;
       }
-      const from = "2026-06-30"; // eller använd periodens from
-      const to = "2026-06-30";   // du kan hämta från period
+      const from = "2026-06-30";
+      const to = "2026-06-30";
       let added = 0;
       selected.forEach(emp => {
         const name = emp.name || emp.aviseringsnamn || `${emp.fornamn} ${emp.efternamn}`.trim();
@@ -244,7 +246,7 @@ export function ScheduleGrid(period) {
     };
   }
 
-  // ----- Knappar -----
+  // ===== KNAPPAR =====
   container.querySelector("#add").onclick = () => {
     const first = rows[0] || { 
       name: "", from: "", to: "", days: 0, passTyp: "Aktiv/Bunden", time: "40:00",
@@ -272,8 +274,12 @@ export function ScheduleGrid(period) {
     });
   };
 
+  // 🔥 Planera-knappen navigerar till overview
   container.querySelector("#plan").onclick = () => {
-    alert("Planeringslogik – här kan du generera schema utifrån personalens tillgänglighet.");
+    import("../shared/state/store.js").then(({ setState }) => {
+      setState("currentView", "overview");
+      window.dispatchEvent(new Event("navigate"));
+    });
   };
 
   container.querySelector("#importStaff").onclick = showImportModal;

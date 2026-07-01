@@ -3,6 +3,8 @@
   flex-direction: column;
   height: 100%;
   min-height: 0;
+  flex: 1;
+  position: relative;
 }
 
 .overview-topbar {
@@ -35,15 +37,19 @@
   color: #333;
 }
 
+/* 🔥 KRITISK FIX: calendar-wrapper får en bestämd höjd */
 .calendar-wrapper {
-  flex: 1;
+  flex: 1 1 auto;
   overflow: auto;
   padding: 10px;
   border: 1px solid #ccc;
   border-top: none;
   border-radius: 0 0 4px 4px;
   background: white;
-  min-height: 0;
+  min-height: 400px;
+  height: 100%;
+  max-height: 100%;
+  display: block;
 }
 
 .calendar-wrapper table {
@@ -51,6 +57,7 @@
   border-collapse: collapse;
   font-size: 12px;
   min-width: 800px;
+  display: table;
 }
 
 .calendar-wrapper th,
@@ -61,8 +68,11 @@
 }
 
 .calendar-wrapper th {
-  background: #e8e8e8;
+  background: #d0d3d6;
   font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .overview-footer {
@@ -75,4 +85,12 @@
   justify-content: flex-end;
   border-radius: 0 0 4px 4px;
   flex-wrap: wrap;
+}
+
+.overview-footer button {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
 }

@@ -20,7 +20,7 @@ export function addPeriod(data) {
     planTo: data.planTo || "",
     approveDate: data.approveDate || "",
     days: data.days || 0,
-    rows: data.rows || []
+    rows: data.rows || []   // 🔥 Personalen sparas här
   };
   periods.push(newPeriod);
   localStorage.setItem("shiftnow_periods", JSON.stringify(periods));

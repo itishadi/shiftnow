@@ -5,36 +5,6 @@ export function CreatePeriodView({ onSave, onCancel }) {
   const container = document.createElement("div");
   let rows = [];
 
-  if (rows.length === 0) {
-    rows.push({
-      name: "",
-      personnr: "",
-      from: "",
-      to: "Öppet",
-      passTyp: "Aktiv/Bunden",
-      days: 0,
-      time: "40:00",
-      veckor: "",
-      semesterkoeff: "0",
-      kalenderdagsfaktor: "1,0",
-      dygnsvila: "11:00",
-      veckovila: "36:00",
-      begransningsperiod: "100%",
-      planering: "",
-      manuKoeff: "",
-      planeriManu: "",
-      faktur: "",
-      kl: "",
-      lhs: "",
-      datumKl: "",
-      startdatum: "",
-      periodDgr: "",
-      planFrom: "",
-      planTo: "Öppet",
-      toSlut: ""
-    });
-  }
-
   container.innerHTML = `
     <div class="mv-container">
       <div class="mv-header">Inställningar för Schemaperiod</div>
@@ -91,20 +61,21 @@ export function CreatePeriodView({ onSave, onCancel }) {
         </div>
       </div>
 
-     <div class="grid-footer">
-  <button id="remove">Ta bort</button>
-  <button id="split">Dela</button>
-  <button id="link">Koppla rad</button>
-  <button id="save">Spara</button>
-  <button id="plan">Spara/Planera schema</button>
-  <button id="add">Lägg till obemannat schema</button>
-  <button id="importStaff">📥 Importera personal (välj)</button>
-  <button id="copyPerson">Kopiera schema person</button>
-  <button id="copyGroup">Kopiera schema grupp</button>
-  <button id="grundbehov">Grundbehov</button>
-  <button id="bemanna">Bemanna</button>
-  <button id="cancel">Avbryt</button>
-</div>
+      <div class="grid-footer">
+        <button id="remove">Ta bort</button>
+        <button id="split">Dela</button>
+        <button id="link">Koppla rad</button>
+        <button id="save">Spara</button>
+        <button id="plan">Spara/Planera schema</button>
+        <button id="add">Lägg till obemannat schema</button>
+        <button id="importStaff">📥 Importera personal (välj)</button>
+        <button id="copyPerson">Kopiera schema person</button>
+        <button id="copyGroup">Kopiera schema grupp</button>
+        <button id="grundbehov">Grundbehov</button>
+        <button id="bemanna">Bemanna</button>
+        <button id="cancel">Avbryt</button>
+      </div>
+    </div>
   `;
 
   const tbody = container.querySelector("#grid-body");
@@ -112,7 +83,6 @@ export function CreatePeriodView({ onSave, onCancel }) {
   container.querySelector("#from").value = today;
   container.querySelector("#planFrom").value = today;
 
-  // ========== RENDER ==========
   function render() {
     tbody.innerHTML = "";
     rows.forEach((r, i) => {
@@ -186,7 +156,6 @@ export function CreatePeriodView({ onSave, onCancel }) {
     });
   }
 
-  // ========== VALIDERING ==========
   function validatePeriod() {
     const daysInput = container.querySelector("#days");
     const days = parseInt(daysInput.value) || 0;
@@ -194,10 +163,7 @@ export function CreatePeriodView({ onSave, onCancel }) {
     const fromDate = container.querySelector("#from").value;
     
     if (!fromDate) {
-      return {
-        valid: false,
-        message: "Startdatum (From) måste anges."
-      };
+      return { valid: false, message: "Startdatum (From) måste anges." };
     }
     
     if (toDate) {
@@ -217,50 +183,33 @@ export function CreatePeriodView({ onSave, onCancel }) {
         rolling: true,
         rollingDays: days,
         startDate: fromDate,
-        endDate: null,
-        message: `✅ Perioden är öppen och rullar var ${days} dag(ar).`
+        endDate: null
       };
     }
     
     return { valid: true };
   }
 
-  // ========== VARNINGSDIALOG ==========
   function showWarningDialog(message) {
     const overlay = document.createElement("div");
     overlay.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: fixed; top:0; left:0; width:100%; height:100%;
+      background: rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center;
       z-index: 99999;
     `;
 
     const dialog = document.createElement("div");
     dialog.style.cssText = `
-      background: white;
-      padding: 30px 40px;
-      border-radius: 8px;
-      max-width: 500px;
-      width: 90%;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      background: white; padding: 30px 40px; border-radius: 8px;
+      max-width: 500px; width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
       text-align: left;
     `;
 
     dialog.innerHTML = `
       <h3 style="margin-top: 0; color: #c0392b;">❌ Kan ej spara</h3>
-      <p style="font-size: 14px; line-height: 1.6; margin: 10px 0 20px 0;">
-        ${message}
-      </p>
+      <p style="font-size: 14px; line-height: 1.6; margin: 10px 0 20px 0;">${message}</p>
       <div style="display: flex; justify-content: flex-end;">
-        <button id="warningOkBtn" style="padding: 8px 30px; background: #3498db; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer;">
-          OK
-        </button>
+        <button id="warningOkBtn" style="padding: 8px 30px; background: #3498db; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer;">OK</button>
       </div>
     `;
 
@@ -272,14 +221,12 @@ export function CreatePeriodView({ onSave, onCancel }) {
     };
 
     overlay.onclick = (e) => {
-      if (e.target === overlay) {
-        document.body.removeChild(overlay);
-      }
+      if (e.target === overlay) document.body.removeChild(overlay);
     };
   }
 
-  // ========== SPARA/PLANERA SCHEMA ==========
-  function handlePlan() {
+  // ===== SPARA OCH PLANERA =====
+  function saveAndPlan() {
     const validation = validatePeriod();
     
     if (!validation.valid) {
@@ -287,7 +234,11 @@ export function CreatePeriodView({ onSave, onCancel }) {
       return;
     }
     
-    // Hämta periodens data
+    if (rows.length === 0) {
+      alert("⚠️ Du måste lägga till minst en person i schemat innan du planerar.");
+      return;
+    }
+    
     const data = {
       name: container.querySelector("#name").value || "Namnlös period",
       from: container.querySelector("#from").value,
@@ -299,14 +250,11 @@ export function CreatePeriodView({ onSave, onCancel }) {
       rows: rows
     };
     
-    // Spara perioden
     const newPeriod = addPeriod(data);
-    
-    // Uppdatera localStorage
     const allPeriods = getPeriods();
     localStorage.setItem("shiftnow_periods", JSON.stringify(allPeriods));
     
-    // Navigera till overview
+    // 🔥 Navigera till overview med den nya perioden
     import("../shared/state/store.js").then(({ setState }) => {
       setState("periods", allPeriods);
       setState("currentPeriod", newPeriod.id);
@@ -315,7 +263,7 @@ export function CreatePeriodView({ onSave, onCancel }) {
     });
   }
 
-  // ========== MODAL FÖR IMPORT ==========
+  // ===== IMPORTERA PERSONAL =====
   function showImportModal() {
     const employees = getEmployees();
     if (employees.length === 0) {
@@ -436,7 +384,7 @@ export function CreatePeriodView({ onSave, onCancel }) {
     };
   }
 
-  // ========== KNAPPAR ==========
+  // ===== KNAPPAR =====
   container.querySelector("#add").onclick = () => {
     const from = container.querySelector("#from").value;
     const to = container.querySelector("#toDate").value;
@@ -490,7 +438,8 @@ export function CreatePeriodView({ onSave, onCancel }) {
     onSave(data);
   };
 
-  container.querySelector("#plan").onclick = handlePlan;
+  // 🔥 Båda knapparna använder samma funktion
+  container.querySelector("#plan").onclick = saveAndPlan;
 
   container.querySelector("#cancel").onclick = onCancel;
 
