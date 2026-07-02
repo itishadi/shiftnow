@@ -2,95 +2,515 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 0;
-  flex: 1;
-  position: relative;
+  overflow: hidden;
+  background: #d7d7d7;
 }
 
-.overview-topbar {
+.heroma-toolbar {
+  height: 42px;
+  background: #d3cec4;
+  border-bottom: 1px solid #999;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 10px 16px;
-  background: #2c3e50;
-  color: white;
-  border-radius: 4px 4px 0 0;
-  flex-shrink: 0;
-  flex-wrap: wrap;
-  gap: 10px;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
 }
 
-.overview-topbar select {
-  padding: 6px 12px;
-  border-radius: 4px;
-  border: none;
-  font-size: 14px;
-  background: #34495e;
-  color: white;
-  cursor: pointer;
-}
-.overview-topbar select:hover {
-  background: #1abc9c;
-}
-.overview-topbar select option {
-  background: white;
-  color: #333;
-}
-
-/* 🔥 KRITISK FIX: calendar-wrapper får en bestämd höjd */
-.calendar-wrapper {
-  flex: 1 1 auto;
+.heroma-wrapper {
+  flex: 1;
   overflow: auto;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-top: none;
-  border-radius: 0 0 4px 4px;
-  background: white;
-  min-height: 400px;
-  height: 100%;
-  max-height: 100%;
-  display: block;
+  background: #efefef;
 }
 
-.calendar-wrapper table {
+.heroma-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
-  min-width: 800px;
-  display: table;
+  table-layout: fixed;
+  font-size: 13px;
 }
 
-.calendar-wrapper th,
-.calendar-wrapper td {
-  border: 1px solid #ccc;
-  padding: 4px;
+.heroma-table th,
+.heroma-table td {
+  border: 1px solid #b4b4b4;
+}
+
+.heroma-header-row th {
+  background: #ece8df;
+  height: 30px;
   text-align: center;
 }
 
-.calendar-wrapper th {
-  background: #d0d3d6;
+.sunday-header {
+  color: #d60000;
+}
+
+.heroma-person-row {
+  cursor: pointer;
+}
+
+.heroma-person-cell {
+  background: linear-gradient(
+    to bottom,
+    #8fb1dc,
+    #4a74b5
+  );
+  color: white;
   font-weight: bold;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  padding: 4px 10px;
+  height: 26px;
+}
+
+.heroma-person-row:hover .heroma-person-cell {
+  background: linear-gradient(
+    to bottom,
+    #9dc0ea,
+    #6088c8
+  );
+}
+
+.heroma-week-row td {
+  background: #f2f2f2;
+  vertical-align: top;
+}
+
+.heroma-week-row td:first-child {
+  background: #e4dfd6;
+  width: 220px;
+}
+
+.week-label {
+  font-weight: bold;
+  padding: 4px 4px 0 4px;
+}
+
+.week-range {
+  padding: 0 4px 4px 4px;
+  font-size: 11px;
+  color: #555;
+}
+.day-cell {
+  position: relative;
+  min-height: 50px;
+  height: 50px;
+  background: white;
+}
+
+.day-number {
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  font-size: 11px;
+  color: #555;
 }
 
 .overview-footer {
-  flex-shrink: 0;
-  padding: 8px 16px;
-  background: #cfe8a9;
-  border-top: 1px solid #ccc;
+  padding: 8px;
+  border-top: 1px solid #aaa;
+  background: #d6d1c7;
   display: flex;
-  gap: 10px;
   justify-content: flex-end;
-  border-radius: 0 0 4px 4px;
-  flex-wrap: wrap;
 }
 
 .overview-footer button {
-  padding: 6px 16px;
-  border: none;
-  border-radius: 4px;
+  padding: 6px 14px;
+  border: 1px solid #888;
+  background: white;
   cursor: pointer;
+  border-radius: 3px;
+}
+
+.overview-footer button:hover {
+  background: #f7f7f7;
+}
+
+.grid-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.grid-header {
+  padding: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  border-bottom: 1px solid #ccc;
+}
+
+.grid-scroll-wrapper {
+  flex: 1;
+  overflow: auto;
+}
+
+#scheduleTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#scheduleTable th,
+#scheduleTable td {
+  border: 1px solid #ccc;
+  padding: 4px;
+}
+
+#scheduleTable input {
+  width: 100%;
+}
+
+.grid-actions {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  border-top: 1px solid #ccc;
+  flex-wrap: wrap;
+}
+
+.grid-actions button {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.mv-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mv-body {
+  display: flex;
+  gap: 20px;
+}
+
+.mv-left,
+.mv-right {
+  flex: 1;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.row label {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.grid-wrapper {
+  overflow: auto;
+}
+
+.grid-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.grid-footer button {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.day-slot {
+
+  position: relative;
+
+  width: 100%;
+
+  height: 28px;
+
+  cursor: pointer;
+
+}
+
+.empty-shift {
+
+  position: absolute;
+
+  left: 0;
+
+  top: 0;
+
+  right: 0;
+
+  height: 22px;
+
+  border: 1px dashed #bdbdbd;
+
+  color: #777;
+
+  text-align: center;
+
+  line-height: 22px;
+
+  background: #fafafa;
+
+}
+
+.empty-shift:hover {
+
+  background: #eef6ff;
+
+}
+
+.shift-block {
+
+  position: absolute;
+
+  top: 2px;
+
+  height: 20px;
+
+  background: #008000;
+
+  color: #fff;
+
+  border: 1px solid #004d00;
+
+  border-radius: 0;
+
+  font-size: 11px;
+
+  line-height: 18px;
+
+  text-align: center;
+
+  overflow: hidden;
+
+  white-space: nowrap;
+
+  box-sizing: border-box;
+
+  padding: 0 2px;
+
+  z-index: 2;
+
+}
+
+.shift-block:hover {
+
+  filter: brightness(1.1);
+
+}
+
+.selected-week {
+
+  background: #cfe0ff !important;
+
+}
+
+.sunday-header {
+
+  color: red;
+
+}
+
+.holiday-header {
+
+  color: red;
+
+  font-weight: bold;
+
+}
+
+.heroma-week-row td {
+
+  position: relative;
+
+  height: 28px;
+
+  padding: 0;
+
+  background: #f5f0dc;
+
+}
+
+.heroma-week-row td:first-child {
+
+  background: #e4dfd6;
+
+  padding: 4px;
+
+}
+
+.week-label {
+
+  font-weight: bold;
+
+}
+
+.week-range {
+
+  font-size: 11px;
+
+  color: #555;
+
+}
+
+.shift-type-default {
+
+  background: #008000;
+
+  color: white;
+
+  border: 1px solid #004d00;
+
+}
+
+.shift-type-u {
+
+  background: #008000;
+
+  color: white;
+
+  border: 1px solid #004d00;
+
+}
+
+.shift-type-t {
+
+  background: #ff66cc;
+
+  color: black;
+
+  border: 1px solid #cc3399;
+
+}
+
+.shift-type-s {
+
+  background: #0066ff;
+
+  color: white;
+
+  border: 1px solid #003d99;
+
+}
+
+.shift-type-adm {
+
+  background: #dce8ff;
+
+  color: black;
+
+  border: 1px solid #8aa8e8;
+
+}
+
+.shift-input {
+
+  width: 100%;
+
+  height: 100%;
+
+  min-height: 24px;
+
+  border: none;
+
+  background: transparent;
+
+  text-align: center;
+
   font-size: 12px;
+
+  outline: none;
+
+  cursor: text;
+
+}
+
+.shift-input:focus {
+
+  background: #fff7cc;
+
+}
+
+.shift-type-ssk {
+
+  background: #f07ce4;
+
+  color: #000;
+
+  border: 1px solid #a845a0;
+
+}
+
+.shift-type-usk {
+
+  background: #6cc96c;
+
+  color: #000;
+
+  border: 1px solid #2f8f2f;
+
+}
+
+.shift-block {
+
+  position: absolute;
+
+  top: 3px;
+
+  height: 20px;
+
+  line-height: 18px;
+
+  text-align: center;
+
+  overflow: hidden;
+
+  white-space: nowrap;
+
+  font-size: 11px;
+
+  box-sizing: border-box;
+
+}
+
+.timeblocks-panel {
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 6px;
+
+  padding: 8px;
+
+  border-top: 1px solid #bdbdbd;
+
+  background: #f4f4f4;
+
+}
+
+.timeblock-item {
+
+  min-width: 140px;
+
+  padding: 4px 6px;
+
+  border: 1px solid #ccc;
+
+  background: white;
+
+  font-size: 11px;
+
+}
+
+.add-timeblock {
+
+  cursor: pointer;
+
+  font-weight: bold;
+
+  text-align: center;
+
+  background: #eef5ff;
+
+}
+
+.add-timeblock:hover {
+
+  background: #dcecff;
+
 }

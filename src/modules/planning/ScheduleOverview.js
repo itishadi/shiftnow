@@ -1,302 +1,1542 @@
-export function ScheduleOverview(periods, currentPeriodId) {
-  const container = document.createElement("div");
-  container.style.cssText = `
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-    background: white;
-    padding: 10px;
-    box-sizing: border-box;
-  `;
+import {
+  timeBlocks,
+  getAllTimeBlocks,
+  addOrUpdateTimeBlock,
+  saveTimeBlocks,
+  loadTimeBlocks,
+  editTimeBlock,
+  deleteTimeBlock,
+  duplicateTimeBlock,
+  createTimeBlock
+}
+from "./timeBlocks.js";
 
-  const period = periods.find(p => p.id === currentPeriodId);
+export function ScheduleOverview(
+  periods,
+  currentPeriodId
+) {
+
+  const container =
+    document.createElement("div");
+
+  container.className =
+    "schedule-overview";
+
+  const period =
+    periods.find(
+      p => p.id === currentPeriodId
+    );
+
   if (!period) {
-    container.innerHTML = `<p>Ingen period vald.</p>`;
+
+    container.innerHTML =
+      "<p>Ingen period vald.</p>";
+
     return container;
+
+  }
+  loadTimeBlocks();
+
+  let expandedPerson =
+    null;
+
+  let selectedWeek =
+    null;
+
+  const dayNames = [
+
+    "Måndag",
+    "Tisdag",
+    "Onsdag",
+    "Torsdag",
+    "Fredag",
+    "Lördag",
+    "Söndag"
+
+  ];
+
+  function formatDate(
+    date
+  ) {
+
+    return date
+      .toISOString()
+      .split("T")[0];
+
   }
 
-  if (!period.rows) period.rows = [];
+  function getWeekNumber(
+    date
+  ) {
 
-  // ===== TOPP =====
-  const topBar = document.createElement("div");
-  topBar.style.cssText = `
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 16px;
-    background: #2c3e50;
-    color: white;
-    border-radius: 4px 4px 0 0;
-    flex-shrink: 0;
-    flex-wrap: wrap;
-    gap: 8px;
-  `;
+    const d =
+      new Date(date);
 
-  const title = document.createElement("span");
-  const monthNames = ['Januari', 'Februari', 'Mars', 'April', 'Maj', 'Juni', 'Juli', 'Augusti', 'September', 'Oktober', 'November', 'December'];
-  const fromMonth = monthNames[new Date(period.from).getMonth()];
-  const fromYear = new Date(period.from).getFullYear();
-  title.textContent = `📅 ${fromMonth} ${fromYear} (v.${getWeekNumber(new Date(period.from))})`;
-  title.style.fontWeight = "bold";
-  title.style.fontSize = "14px";
+    d.setHours(
+      0,
+      0,
+      0,
+      0
+    );
 
-  const rightSection = document.createElement("div");
-  rightSection.style.cssText = `display: flex; align-items: center; gap: 10px;`;
+    d.setDate(
+      d.getDate() +
+      3 -
+      (
+        (
+          d.getDay() +
+          6
+        ) % 7
+      )
+    );
 
-  const select = document.createElement("select");
-  select.style.cssText = `
-    padding: 4px 10px;
-    border-radius: 4px;
-    border: none;
-    font-size: 12px;
-    background: #34495e;
-    color: white;
-    cursor: pointer;
-  `;
-  periods.forEach(p => {
-    const option = document.createElement("option");
-    option.value = p.id;
-    option.textContent = p.name;
-    if (p.id === currentPeriodId) option.selected = true;
-    select.appendChild(option);
-  });
-  select.onchange = () => {
-    const newId = parseInt(select.value);
-    import("../shared/state/store.js").then(({ setState }) => {
-      setState("currentPeriod", newId);
-      setState("currentView", "overview");
-      window.dispatchEvent(new Event("navigate"));
-    });
-  };
+    const week1 =
+      new Date(
+        d.getFullYear(),
+        0,
+        4
+      );
 
-  rightSection.appendChild(select);
-  topBar.appendChild(title);
-  topBar.appendChild(rightSection);
-  container.appendChild(topBar);
+    return (
+      1 +
+      Math.round(
+        (
+          (
+            d -
+            week1
+          ) /
+          86400000 -
+          3 +
+          (
+            (
+              week1.getDay() +
+              6
+            ) % 7
+          )
+        ) / 7
+      )
+    );
 
-  // ===== TABELL =====
-  const tableWrapper = document.createElement("div");
-  tableWrapper.style.cssText = `
-    flex: 1;
-    overflow: auto;
-    border: 1px solid #ccc;
-    border-top: none;
-    border-radius: 0 0 4px 4px;
-    background: white;
-    padding: 10px;
-    min-height: 300px;
-  `;
-
-  const staffRows = period.rows || [];
-
-  // Generera datum (4 veckor från periodens start)
-  const fromDate = new Date(period.from);
-  const toDate = new Date(fromDate);
-  toDate.setDate(toDate.getDate() + 28);
-
-  // Hitta första måndag
-  while (fromDate.getDay() !== 1) {
-    fromDate.setDate(fromDate.getDate() - 1);
   }
 
-  const allDates = [];
-  const currentDate = new Date(fromDate);
-  while (currentDate <= toDate) {
-    allDates.push({
-      date: currentDate.toISOString().split('T')[0],
-      day: currentDate.getDate(),
-      month: currentDate.getMonth() + 1,
-      weekday: currentDate.getDay(),
-      week: getWeekNumber(currentDate)
-    });
-    currentDate.setDate(currentDate.getDate() + 1);
-  }
+  function getWeeksForPerson(
+    person
+  ) {
 
-  // Gruppera efter vecka
-  const weekGroups = {};
-  allDates.forEach(d => {
-    const weekKey = d.week;
-    if (!weekGroups[weekKey]) {
-      weekGroups[weekKey] = [];
+    const weeks = [];
+
+    let start =
+      new Date(
+        person.from ||
+        period.from
+      );
+
+    let end =
+      new Date(
+        person.to &&
+        person.to !== "Öppet"
+          ? person.to
+          : period.to
+      );
+
+    while (
+      start.getDay() !== 1
+    ) {
+
+      start.setDate(
+        start.getDate() - 1
+      );
+
     }
-    weekGroups[weekKey].push(d);
-  });
+    while (
+      start <= end
+    ) {
 
-  // ===== BYGG TABELL =====
-  let html = `
-    <div style="overflow-x: auto; width:100%;">
-      <table style="width:100%; border-collapse: collapse; font-size:12px; min-width:800px;">
-        <thead>
-          <tr>
-            <th style="border:1px solid #ccc; padding:6px; background:#d0d3d6; min-width:150px; text-align:left; position:sticky; left:0; z-index:10;">Vecka</th>
-  `;
+      const weekStart =
+        new Date(start);
 
-  // 7 dagar: Måndag till Söndag
-  const dayNames = ['Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag', 'Söndag'];
-  for (let i = 0; i < 7; i++) {
-    html += `<th style="border:1px solid #ccc; padding:6px; background:#d0d3d6; min-width:60px; text-align:center; position:sticky; left:${150 + i * 60}px; z-index:10;">${dayNames[i]}</th>`;
-  }
+      const weekEnd =
+        new Date(start);
 
-  html += `</tr></thead><tbody>`;
+      weekEnd.setDate(
+        weekEnd.getDate() + 6
+      );
 
-  // ===== VECKORADER =====
-  Object.keys(weekGroups).forEach(weekNum => {
-    const weekDates = weekGroups[weekNum];
-    if (weekDates.length === 0) return;
+      const dates = [];
 
-    html += `<tr style="background:#e8f0fe;">`;
-    html += `<td style="border:1px solid #ccc; padding:4px; font-weight:bold; color:#333; position:sticky; left:0; z-index:5;">Vecka ${weekNum}</td>`;
+      for (
+        let i = 0;
+        i < 7;
+        i++
+      ) {
 
-    for (let i = 0; i < 7; i++) {
-      const dayIndex = i + 1;
-      const dayData = weekDates.find(d => d.weekday === dayIndex);
-      if (dayData) {
-        const dayStr = dayData.day < 10 ? `0${dayData.day}` : dayData.day;
-        const monthStr = dayData.month < 10 ? `0${dayData.month}` : dayData.month;
-        html += `<td style="border:1px solid #ccc; padding:2px; text-align:center; background:#e8f0fe; font-size:9px; color:#555;">${dayStr}/${monthStr}</td>`;
-      } else {
-        html += `<td style="border:1px solid #ccc; padding:2px; background:#f9f9f9;"></td>`;
+        const d =
+          new Date(
+            weekStart
+          );
+
+        d.setDate(
+          weekStart.getDate() +
+          i
+        );
+
+        dates.push(d);
+
       }
+
+      weeks.push({
+
+        number:
+          getWeekNumber(
+            weekStart
+          ),
+
+        start:
+          weekStart,
+
+        end:
+          weekEnd,
+
+        dates
+
+      });
+
+      start.setDate(
+        start.getDate() + 7
+      );
+
     }
-    html += `</tr>`;
-  });
 
-  // ===== PERSONALRADER =====
-  if (staffRows.length === 0) {
-    html += `
-      <tr>
-        <td colspan="8" style="border:1px solid #ccc; padding:20px; text-align:center; color:#666;">
-          👤 Ingen personal tillagd.
-        </td>
-      </tr>
-    `;
-  } else {
-    staffRows.forEach((row, rowIndex) => {
-      const name = row.name || "Namnlös";
-      const personFrom = row.from || period.from;
-      const personTo = row.to || period.to || 'Öppet';
-      const passTyp = row.passTyp || "AB";
-      const rollingDays = parseInt(row.days) || 0;
+    return weeks;
 
-      html += `<tr>`;
-      html += `<td style="border:1px solid #ccc; padding:6px; font-weight:bold; background:#f5f5f5; position:sticky; left:0; z-index:5;">
-        ${name}<br>
-        <span style="font-size:9px; font-weight:normal; color:#555;">${passTyp} ${personFrom} - ${personTo}</span>
-      </td>`;
-
-      // 7 dagar
-      for (let i = 0; i < 7; i++) {
-        const dayIndex = i + 1;
-        const dayData = allDates.find(d => d.weekday === dayIndex);
-        
-        if (dayData) {
-          const dDate = new Date(dayData.date);
-          const pFrom = new Date(personFrom);
-          const pTo = personTo !== 'Öppet' ? new Date(personTo) : new Date(toDate);
-          
-          let isActive = true;
-          if (dDate < pFrom || dDate > pTo) isActive = false;
-
-          if (rollingDays > 0 && isActive) {
-            const diffFromStart = Math.floor((dDate - pFrom) / (1000 * 60 * 60 * 24));
-            if (diffFromStart % rollingDays !== 0) isActive = false;
-          }
-
-          const bgColor = isActive ? "#4caf50" : "#f0f0f0";
-          const textColor = isActive ? "white" : "#ccc";
-          const label = isActive ? "✓" : "";
-
-          html += `<td style="border:1px solid #ccc; padding:2px; text-align:center; background:${bgColor}; color:${textColor}; font-weight:bold; font-size:10px; cursor:${isActive ? 'pointer' : 'default'};" 
-                       data-row="${rowIndex}" data-date="${dayData.date}" data-active="${isActive}"
-                       contenteditable="${isActive ? 'true' : 'false'}">${label}</td>`;
-        } else {
-          html += `<td style="border:1px solid #ccc; padding:2px; background:#f9f9f9;"></td>`;
-        }
-      }
-
-      html += `</tr>`;
-    });
   }
 
-  html += `</tbody></table></div>`;
-  tableWrapper.innerHTML = html;
-  container.appendChild(tableWrapper);
+  function minutesToHHMM(
+    minutes
+  ) {
 
-  // ===== REDIGERBARA CELLER =====
-  tableWrapper.querySelectorAll("td[contenteditable='true']").forEach(cell => {
-    cell.addEventListener('focus', function() {
-      if (this.textContent.trim() === '✓') {
-        this.textContent = '';
-      }
-    });
+    const hours =
+      Math.floor(
+        minutes / 60
+      );
 
-    cell.addEventListener('blur', function() {
-      let value = this.textContent.trim();
-      if (value === '') {
-        this.textContent = '✓';
-      } else {
-        const timeRegex = /^([0-9]{1,2}:[0-9]{2})$/;
-        if (!timeRegex.test(value) && value !== '✓') {
-          this.textContent = '✓';
-          alert('Ange tid i formatet HH:MM, t.ex. 07:00 eller 15:30');
+    const mins =
+      minutes % 60;
+
+    return `${hours}:${String(
+      mins
+    ).padStart(2, "0")}`;
+
+  }
+
+  function calculateWorkedMinutes(
+    person
+  ) {
+
+    let totalMinutes = 0;
+
+    Object.values(
+      person.shifts || {}
+    ).forEach(
+      shift => {
+
+        if (
+          !shift ||
+          !shift.start ||
+          !shift.end
+        ) {
+          return;
         }
+
+        const [
+          sh,
+          sm
+        ] =
+          shift.start
+            .split(":")
+            .map(Number);
+
+        const [
+          eh,
+          em
+        ] =
+          shift.end
+            .split(":")
+            .map(Number);
+
+        let startMinutes =
+          sh * 60 + sm;
+
+        let endMinutes =
+          eh * 60 + em;
+
+        if (
+          endMinutes <
+          startMinutes
+        ) {
+
+          endMinutes +=
+            24 * 60;
+
+        }
+
+        totalMinutes +=
+          (
+            endMinutes -
+            startMinutes
+          ) -
+          Number(
+            shift.break || 0
+          );
+
       }
-    });
+    );
 
-    cell.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        this.blur();
-      }
-      if (e.key === 'Escape') {
-        this.textContent = '✓';
-        this.blur();
-      }
-    });
-  });
+    return totalMinutes;
 
-  // ===== FOOTER =====
-  const footer = document.createElement("div");
-  footer.style.cssText = `
-    flex-shrink: 0;
-    padding: 8px 16px;
-    background: #cfe8a9;
-    border-top: 1px solid #ccc;
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    border-radius: 0 0 4px 4px;
-    flex-wrap: wrap;
-  `;
+  }
+  function getTargetMinutes(
+    person
+  ) {
 
-  const closeBtn = document.createElement("button");
-  closeBtn.textContent = "⬅️ Tillbaka";
-  closeBtn.style.cssText = `
-    padding: 6px 16px;
-    background: #3498db;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  `;
-  closeBtn.onclick = () => {
-    import("../shared/state/store.js").then(({ setState }) => {
-      setState("currentView", "grid");
-      window.dispatchEvent(new Event("navigate"));
-    });
-  };
+    if (
+      !person.from ||
+      !person.to ||
+      person.to === "Öppet"
+    ) {
 
-  footer.appendChild(closeBtn);
-  container.appendChild(footer);
+      return 0;
 
-  return container;
+    }
+
+    const start =
+      new Date(
+        person.from
+      );
+
+    const end =
+      new Date(
+        person.to
+      );
+
+    const days =
+      Math.floor(
+        (
+          end -
+          start
+        ) /
+        86400000
+      ) + 1;
+
+    const weeks =
+      days / 7;
+
+    const weeklyTime =
+      person.time ||
+      "40:00";
+
+    const [
+      h,
+      m
+    ] =
+      weeklyTime
+      .split(":")
+      .map(Number);
+
+    const weeklyMinutes =
+      h * 60 + m;
+
+    return Math.round(
+      weeks *
+      weeklyMinutes
+    );
+
+  }
+
+  function getShiftLength(
+  shift
+) {
+
+  if (
+    !shift ||
+    !shift.start ||
+    !shift.end
+  ) {
+
+    return "0:00";
+
+  }
+
+  const [
+    sh,
+    sm
+  ] =
+    shift.start
+    .split(":")
+    .map(Number);
+
+  const [
+    eh,
+    em
+  ] =
+    shift.end
+    .split(":")
+    .map(Number);
+
+  let start =
+    sh * 60 + sm;
+
+  let end =
+    eh * 60 + em;
+
+  if (
+    end < start
+  ) {
+
+    end +=
+      24 * 60;
+
+  }
+
+  let duration =
+    end - start;
+
+  if (
+    !shift.mealBreak
+  ) {
+
+    duration -=
+      Number(
+        shift.break || 0
+      );
+
+  }
+
+  return minutesToHHMM(
+    duration
+  );
+
+}
+function getShiftPosition(
+  shift
+) {
+
+  const [
+    h,
+    m
+  ] =
+    shift.start
+    .split(":")
+    .map(Number);
+
+  const minutes =
+    h * 60 + m;
+
+  return (
+    minutes / 1440
+  ) * 100;
+
 }
 
-function getWeekNumber(d) {
-  const date = new Date(d);
-  date.setHours(0, 0, 0, 0);
-  date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
-  const week1 = new Date(date.getFullYear(), 0, 4);
-  return 1 + Math.round(((date - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+function getShiftWidth(
+  shift
+) {
+
+  const [
+    sh,
+    sm
+  ] =
+    shift.start
+    .split(":")
+    .map(Number);
+
+  const [
+    eh,
+    em
+  ] =
+    shift.end
+    .split(":")
+    .map(Number);
+
+  let start =
+    sh * 60 + sm;
+
+  let end =
+    eh * 60 + em;
+
+  if (
+    end < start
+  ) {
+
+    end += 1440;
+
+  }
+
+  const duration =
+    end - start;
+
+  return Math.max(
+    12,
+    (
+      duration / 1440
+    ) * 100
+  );
+
+}
+
+ function getShiftWidth(
+  shift
+) {
+
+  const [
+    sh,
+    sm
+  ] =
+    shift.start
+    .split(":")
+    .map(Number);
+
+  const [
+    eh,
+    em
+  ] =
+    shift.end
+    .split(":")
+    .map(Number);
+
+  let start =
+    sh * 60 + sm;
+
+  let end =
+    eh * 60 + em;
+
+  if (
+    end < start
+  ) {
+
+    end += 1440;
+
+  }
+
+  const duration =
+    end - start;
+
+  return Math.max(
+    12,
+    (
+      duration / 1440
+    ) * 100
+  );
+
+}
+
+  function getShiftClass(
+    shift
+  ) {
+
+    switch (
+      shift.type
+    ) {
+
+      case "t":
+        return "shift-type-t";
+
+      case "u":
+        return "shift-type-u";
+
+      case "s":
+        return "shift-type-s";
+
+      case "adm":
+        return "shift-type-adm";
+
+      default:
+        return "shift-type-default";
+
+    }
+
+  }
+
+  function parseTime(
+    value
+  ) {
+
+    const cleaned =
+      value.trim();
+
+    if (
+      cleaned.length === 3
+    ) {
+
+      return `0${cleaned[0]}:${cleaned.slice(1)}`;
+
+    }
+
+    if (
+      cleaned.length === 4
+    ) {
+
+      return `${cleaned.slice(0,2)}:${cleaned.slice(2)}`;
+
+    }
+
+    return cleaned;
+
+  }
+
+function createShift(
+  value,
+  date,
+  person
+) {
+
+  const parts =
+    value
+      .trim()
+      .split(/\s+/);
+
+  if (
+    parts.length === 1
+  ) {
+
+    const code =
+      parts[0]
+      .toUpperCase();
+
+    const block =
+      timeBlocks[
+        code
+      ];
+
+    if (!block) {
+      return;
+    }
+
+    if (
+      !person.shifts
+    ) {
+
+      person.shifts = {};
+
+    }
+
+    person.shifts[
+      date
+    ] = {
+
+      start:
+        block.start,
+
+      end:
+        block.end,
+
+      break:
+        block.break,
+
+      title:
+        block.title,
+
+      code:
+        block.code,
+
+      color:
+        block.color,
+
+      mealBreak:
+        false
+
+    };
+
+    return;
+
+  }
+
+  if (
+    parts.length >= 4
+  ) {
+
+    const code =
+      parts[
+        parts.length - 1
+      ]
+      .toUpperCase();
+
+    const start =
+      parseTime(
+        parts[0]
+      );
+
+    const end =
+      parseTime(
+        parts[1]
+      );
+
+    const breakMinutes =
+      Number(
+        parts[2]
+      );
+
+    let block =
+      timeBlocks[
+        code
+      ];
+
+    if (!block) {
+
+      block = {
+
+        code,
+
+        title: code,
+
+        start,
+
+        end,
+
+        break:
+          breakMinutes,
+
+        color:
+          "shift-type-default"
+
+      };
+
+      addOrUpdateTimeBlock(
+        block
+      );
+      saveTimeBlocks();
+    }
+
+    if (
+      !person.shifts
+    ) {
+
+      person.shifts = {};
+
+    }
+
+    person.shifts[
+      date
+    ] = {
+
+      start,
+
+      end,
+
+      break:
+        breakMinutes,
+
+      title:
+        block.title,
+
+      code,
+
+      color:
+        block.color,
+
+      mealBreak:
+        false
+
+    };
+
+  }
+
+}
+  function isSwedishHoliday(
+    date
+  ) {
+
+    const value =
+      formatDate(date);
+
+    const holidays = [
+
+      "2026-01-01",
+      "2026-01-06",
+
+      "2026-04-03",
+      "2026-04-05",
+      "2026-04-06",
+
+      "2026-05-01",
+
+      "2026-05-14",
+
+      "2026-06-06",
+
+      "2026-06-20",
+
+      "2026-10-31",
+
+      "2026-12-25",
+      "2026-12-26"
+
+    ];
+
+    return holidays.includes(
+      value
+    );
+
+  }
+
+  function getDayHeaderClass(
+    date,
+    index
+  ) {
+
+    if (
+      index === 6
+    ) {
+
+      return "sunday-header";
+
+    }
+
+    if (
+      isSwedishHoliday(
+        date
+      )
+    ) {
+
+      return "holiday-header";
+
+    }
+
+    return "";
+
+  }
+
+  function getDefaultWeek() {
+
+    const firstPerson =
+      period.rows?.[0];
+
+    if (
+      !firstPerson
+    ) {
+
+      return null;
+
+    }
+
+    const weeks =
+      getWeeksForPerson(
+        firstPerson
+      );
+
+    return (
+      weeks[0] || null
+    );
+
+  }
+
+  if (
+    !selectedWeek
+  ) {
+
+    selectedWeek =
+      getDefaultWeek();
+
+  }
+
+  function renderHeader() {
+
+    if (
+      !selectedWeek
+    ) {
+
+      return `
+        <thead>
+          <tr class="heroma-header-row">
+            <th>Vecka</th>
+            <th>Måndag</th>
+            <th>Tisdag</th>
+            <th>Onsdag</th>
+            <th>Torsdag</th>
+            <th>Fredag</th>
+            <th>Lördag</th>
+            <th class="sunday-header">
+              Söndag
+            </th>
+          </tr>
+        </thead>
+      `;
+
+    }
+
+    return `
+
+      <thead>
+
+        <tr
+          class="heroma-header-row">
+
+          <th>
+            Vecka
+          </th>
+
+          ${selectedWeek.dates
+            .map(
+              (
+                date,
+                index
+              ) => `
+
+                <th
+                  class="${getDayHeaderClass(
+                    date,
+                    index
+                  )}">
+
+                  ${
+                    dayNames[index]
+                  }
+
+                  ${String(
+                    date.getDate()
+                  ).padStart(
+                    2,
+                    "0"
+                  )}
+
+                </th>
+
+              `
+            )
+            .join("")}
+
+        </tr>
+
+      </thead>
+
+    `;
+
+  }
+function renderTimeBlocks() {
+
+    return `
+
+      <div
+        class="timeblocks-panel">
+        <div
+  class="timeblock-item add-timeblock">
+
+  + Nytt tidblock
+
+</div>
+
+        ${getAllTimeBlocks()
+          .map(
+            block => `
+
+              <div
+               class="timeblock-item"
+               data-code="${block.code}">
+
+                <strong>
+                  ${block.code}
+                </strong>
+
+                -
+
+                ${block.title}
+
+                <br>
+
+                ${block.start}
+                -
+                ${block.end}
+
+              </div>
+
+            `
+          )
+          .join("")}
+
+      </div>
+
+    `;
+
+  }
+  function render() {
+
+    container.innerHTML =
+      "";
+
+    const wrapper =
+      document.createElement(
+        "div"
+      );
+
+    wrapper.className =
+      "heroma-wrapper";
+
+    let html = `
+
+      <table
+        class="heroma-table">
+
+        ${renderHeader()}
+
+        <tbody>
+
+    `;
+    (period.rows || [])
+      .forEach(
+        (
+          person,
+          personIndex
+        ) => {
+
+          const workedMinutes =
+            calculateWorkedMinutes(
+              person
+            );
+
+          const targetMinutes =
+            getTargetMinutes(
+              person
+            );
+
+          const balanceMinutes =
+            targetMinutes -
+            workedMinutes;
+
+          html += `
+
+            <tr
+              class="heroma-person-row"
+              data-person="${personIndex}">
+
+              <td
+                colspan="8"
+                class="heroma-person-cell">
+
+                ${
+                  expandedPerson ===
+                  personIndex
+                    ? "−"
+                    : "+"
+                }
+
+                &nbsp;
+
+                ${person.name || ""}
+
+                &nbsp;
+
+                ${person.personnr || ""}
+
+                &nbsp;
+
+                ${
+                  person.from ||
+                  period.from
+                }
+
+                -
+
+                ${
+                  person.to ||
+                  "Öppet"
+                }
+
+                &nbsp;&nbsp;
+
+                Syss.grad:
+
+                ${
+                  person.sysselsattningsgrad ||
+                  "100"
+                }
+
+                %
+
+                &nbsp;&nbsp;
+
+                Timmar:
+
+                ${minutesToHHMM(
+                  workedMinutes
+                )}
+
+                /
+
+                ${minutesToHHMM(
+                  targetMinutes
+                )}
+
+                &nbsp;&nbsp;
+
+                ${
+                  balanceMinutes >= 0
+                    ? "Underplanerat"
+                    : "Överplanerat"
+                }
+
+                :
+
+                ${minutesToHHMM(
+                  Math.abs(
+                    balanceMinutes
+                  )
+                )}
+
+              </td>
+
+            </tr>
+
+          `;
+
+          if (
+            expandedPerson !==
+            personIndex
+          ) {
+
+            return;
+
+          }
+
+          const weeks =
+            getWeeksForPerson(
+              person
+            );
+            weeks.forEach(
+            week => {
+
+              const selected =
+                selectedWeek &&
+                selectedWeek.number ===
+                week.number &&
+                formatDate(
+                  selectedWeek.start
+                ) ===
+                formatDate(
+                  week.start
+                );
+
+              html += `
+
+                <tr
+                  class="
+                    heroma-week-row
+                    ${
+                      selected
+                        ? "selected-week"
+                        : ""
+                    }
+                  "
+                  data-week="${week.number}"
+                  data-start="${formatDate(
+                    week.start
+                  )}">
+
+                  <td>
+
+                    <div
+                      class="week-label">
+
+                      Vecka
+                      ${week.number}
+
+                    </div>
+
+                    <div
+                      class="week-range">
+
+                      ${formatDate(
+                        week.start
+                      )}
+
+                      -
+
+                      ${formatDate(
+                        week.end
+                      )}
+
+                    </div>
+
+                  </td>
+
+              `;
+
+              for (
+                let i = 0;
+                i < 7;
+                i++
+              ) {
+
+                const date =
+                  week.dates[i];
+
+                const dateKey =
+                  formatDate(
+                    date
+                  );
+
+                const shift =
+                  person.shifts?.[
+                    dateKey
+                  ];
+
+                html += `
+
+                  <td>
+
+                  <div
+  class="day-slot"
+  data-person="${personIndex}"
+  data-date="${dateKey}">
+
+  ${
+  shift
+  ? `
+
+  <div
+    class="shift-block ${shift.color || ""}"
+
+    style="
+      left:${getShiftPosition(
+        shift
+      )}%;
+
+      width:${getShiftWidth(
+        shift
+      )}%;
+    "
+
+    title="Kortkod: ${shift.code || ""}
+
+${shift.title || ""}
+
+${shift.start} - ${shift.end}
+
+Rast: ${shift.break || 0} min
+
+Passlängd: ${getShiftLength(
+      shift
+    )}">
+
+    ${shift.start.substring(
+      0,
+      5
+    )}
+
+    -
+
+    ${shift.end.substring(
+      0,
+      5
+    )}
+
+  </div>
+
+  `
+  : `
+
+  <input
+    class="shift-input"
+    data-person="${personIndex}"
+    data-date="${dateKey}"
+    maxlength="10">
+
+  `
+
+}
+
+</div>
+
+                  </td>
+
+                `;
+
+              }
+
+              html += `
+
+                </tr>
+
+              `;
+
+            }
+          );
+
+        }
+      );
+
+    html += `
+
+        </tbody>
+
+      </table>
+
+      ${renderTimeBlocks()}
+
+    `;
+
+    wrapper.innerHTML =
+      html;
+
+    container.appendChild(
+      wrapper
+    );
+    container
+      .querySelectorAll(
+        ".heroma-week-row"
+      )
+      .forEach(
+        row => {
+
+          row.onclick = () => {
+
+            const weekStart =
+              new Date(
+                row.dataset.start
+              );
+
+            const weekEnd =
+              new Date(
+                weekStart
+              );
+
+            weekEnd.setDate(
+              weekEnd.getDate() + 6
+            );
+
+            const dates = [];
+
+            for (
+              let i = 0;
+              i < 7;
+              i++
+            ) {
+
+              const date =
+                new Date(
+                  weekStart
+                );
+
+              date.setDate(
+                weekStart.getDate() + i
+              );
+
+              dates.push(
+                date
+              );
+
+            }
+
+            selectedWeek = {
+
+              number:
+                Number(
+                  row.dataset.week
+                ),
+
+              start:
+                weekStart,
+
+              end:
+                weekEnd,
+
+              dates
+
+            };
+
+            render();
+
+          };
+
+        }
+      );
+
+    container
+  .querySelectorAll(
+    ".shift-input"
+  )
+  .forEach(
+    input => {
+input.addEventListener(
+  "click",
+  () => {
+
+    input.focus();
+
+    input.select();
+
+  }
+);
+      input.addEventListener(
+        "keydown",
+        e => {
+
+          if (
+            e.key !== "Enter"
+          ) {
+
+            return;
+
+          }
+
+          const person =
+            period.rows[
+              Number(
+                input.dataset.person
+              )
+            ];
+
+          const date =
+            input.dataset.date;
+
+          createShift(
+            input.value,
+            date,
+            person
+          );
+
+          render();
+
+        }
+      );
+
+    }
+  );
+      container
+  .querySelectorAll(
+    ".heroma-person-row"
+  )
+  .forEach(
+    row => {
+
+      row.onclick = () => {
+
+        const personId =
+          Number(
+            row.dataset.person
+          );
+
+        expandedPerson =
+          expandedPerson ===
+          personId
+            ? null
+            : personId;
+
+        if (
+          expandedPerson !==
+          null
+        ) {
+
+          const person =
+            period.rows[
+              expandedPerson
+            ];
+
+          const weeks =
+            getWeeksForPerson(
+              person
+            );
+
+          if (
+            weeks.length > 0
+          ) {
+
+            selectedWeek =
+              weeks[0];
+
+          }
+
+        }
+
+        render();
+
+      };
+
+    }
+  );
+
+container
+  .querySelectorAll(
+    ".timeblock-item"
+  )
+  .forEach(
+    item => {
+
+      item.ondblclick =
+        () => {
+
+          editTimeBlock(
+            item.dataset.code
+          );
+
+          render();
+
+        };
+
+      item.oncontextmenu =
+        e => {
+
+          e.preventDefault();
+
+          if (
+            confirm(
+              `Ta bort ${item.dataset.code}?`
+            )
+          ) {
+
+            deleteTimeBlock(
+              item.dataset.code
+            );
+
+            render();
+
+          }
+
+        };
+
+      item.onclick =
+        e => {
+
+          if (
+            e.ctrlKey
+          ) {
+
+            duplicateTimeBlock(
+              item.dataset.code
+            );
+
+            render();
+
+          }
+
+        };
+
+    }
+  );
+
+const addBlock =
+  container.querySelector(
+    ".add-timeblock"
+  );
+
+if (
+  addBlock
+) {
+
+  addBlock.onclick =
+    () => {
+
+      createTimeBlock();
+
+      render();
+
+    };
+
+}
+
+}
+
+render();
+
+return container;
+
 }

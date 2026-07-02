@@ -1,289 +1,636 @@
 import { getEmployees } from "../employees/employeeService.js";
 
 export function ScheduleGrid(period) {
-  const container = document.createElement("div");
+
+  const container =
+    document.createElement("div");
+
+  let rows =
+    period.rows || [];
+
+  rows.forEach(row => {
+
+    if (!row.shifts) {
+      row.shifts = {};
+    }
+
+  });
+
+  function createEmployeeRow(name) {
+
+    return {
+
+      name,
+
+      personnr: "",
+
+      from: period.from || "",
+
+      to: period.to || "Öppet",
+
+      passTyp: "Aktiv/Bunden",
+
+      days: 0,
+
+      time: "40:00",
+
+      kalenderdagsfaktor: "1,0",
+
+      dygnsvila: "11:00",
+
+      veckovila: "36:00",
+
+      begransningsperiod: "100%",
+
+      shifts: {}
+    };
+  }
+
+  function parseHeromaShift(text) {
+
+    const parts =
+      text.trim().split(/\s+/);
+
+    if (parts.length < 2) {
+      return null;
+    }
+
+    const start =
+      parts[0].padStart(4, "0");
+
+    const end =
+      parts[1].padStart(4, "0");
+
+    const pause =
+      Number(parts[2] || 0);
+
+    return {
+
+      start:
+        `${start.slice(0,2)}:${start.slice(2,4)}`,
+
+      end:
+        `${end.slice(0,2)}:${end.slice(2,4)}`,
+
+      break:
+        pause
+    };
+  }
 
   container.innerHTML = `
-    <div class="grid-container">
-      <div class="grid-header">Schema för: ${period.name}</div>
-      <div class="grid-scroll-wrapper">
-        <table id="scheduleTable">
-          <thead>
-            <tr>
-              <th style="min-width:120px;">Namn</th>
-              <th style="min-width:110px;">Personnr</th>
-              <th style="min-width:110px;">From</th>
-              <th style="min-width:120px;">Tom</th>
-              <th style="min-width:120px;">Passtyp</th>
-              <th style="min-width:110px;">Rullande</th>
-              <th style="min-width:100px;">Tid</th>
-              <th style="min-width:140px;">Kalenderdagsfaktor</th>
-              <th style="min-width:110px;">Dygnsvila</th>
-              <th style="min-width:110px;">Veckovila</th>
-              <th style="min-width:160px;">Begränsningsperiod (deltid)</th>
-              <th style="min-width:120px;">Planering</th>
-              <th style="min-width:130px;">Manuellt datum/kl</th>
-              <th style="min-width:130px;">Manuellt startdatum</th>
-              <th style="min-width:100px;">Perioddagar</th>
-              <th style="min-width:110px;">Plan.from</th>
-              <th style="min-width:120px;">Plan.tom</th>
-            </tr>
-          </thead>
-          <tbody id="scheduleBody"></tbody>
-        </table>
-      </div>
-      <div class="grid-actions">
-        <button id="add">Lägg till person</button>
-        <button id="remove">Ta bort</button>
-        <button id="save">Spara schema</button>
-        <button id="plan">Planera</button>
-        <button id="importStaff">📥 Importera personal (välj)</button>
-      </div>
+
+  <div class="grid-container">
+
+    <div class="grid-header">
+
+      Schema för:
+      ${period.name}
+
     </div>
+
+    <div class="grid-scroll-wrapper">
+
+      <table id="scheduleTable">
+
+        <thead>
+
+          <tr>
+
+            <th>Namn</th>
+
+            <th>Personnr</th>
+
+            <th>From</th>
+
+            <th>Tom</th>
+
+            <th>Passtyp</th>
+
+            <th>Tid</th>
+
+            <th>Testpass</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody id="scheduleBody">
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+    <div class="grid-actions">
+
+      <button id="add">
+        Lägg till person
+      </button>
+
+      <button id="remove">
+        Ta bort
+      </button>
+
+      <button id="save">
+        Spara schema
+      </button>
+
+      <button id="plan">
+        Planera
+      </button>
+
+      <button id="importStaff">
+        Importera personal
+      </button>
+
+    </div>
+
+  </div>
+
   `;
 
-  const tbody = container.querySelector("#scheduleBody");
-  let rows = period.rows && period.rows.length > 0 ? period.rows : [];
-
-  if (rows.length === 0) {
-    rows.push({
-      name: "Ellie",
-      personnr: "19700101-1234",
-      from: "2026-06-26",
-      to: "Öppet",
-      passTyp: "Aktiv/Bunden",
-      days: 7,
-      time: "40:00",
-      kalenderdagsfaktor: "1,0",
-      dygnsvila: "11:00",
-      veckovila: "36:00",
-      begransningsperiod: "100%",
-      planering: "",
-      manuDatumKl: "",
-      manuStartdatum: "",
-      periodDgr: "",
-      planFrom: "",
-      planTo: "Öppet"
-    });
-  }
+  const tbody =
+    container.querySelector(
+      "#scheduleBody"
+    );
 
   function render() {
+
     tbody.innerHTML = "";
-    rows.forEach((r, i) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td><input value="${r.name || ''}" data-i="${i}" data-f="name" /></td>
-        <td><input value="${r.personnr || ''}" data-i="${i}" data-f="personnr" /></td>
-        <td><input type="date" value="${r.from || ''}" data-i="${i}" data-f="from" /></td>
-        <td>
-          <select data-i="${i}" data-f="toMode">
-            <option value="date" ${r.to !== "Öppet" ? "selected" : ""}>Datum</option>
-            <option value="open" ${r.to === "Öppet" ? "selected" : ""}>Öppet</option>
-          </select>
-          <input type="date" value="${r.to === "Öppet" ? "" : r.to}" 
-                 data-i="${i}" data-f="toDate"
-                 style="${r.to === "Öppet" ? "display:none" : ""}" />
-        </td>
-        <td><input value="${r.passTyp || 'Aktiv/Bunden'}" data-i="${i}" data-f="passTyp" /></td>
-        <td><input type="number" value="${r.days || 0}" data-i="${i}" data-f="days" /></td>
-        <td><input value="${r.time || '40:00'}" data-i="${i}" data-f="time" /></td>
-        <td><input value="${r.kalenderdagsfaktor || '1,0'}" data-i="${i}" data-f="kalenderdagsfaktor" /></td>
-        <td><input value="${r.dygnsvila || '11:00'}" data-i="${i}" data-f="dygnsvila" /></td>
-        <td><input value="${r.veckovila || '36:00'}" data-i="${i}" data-f="veckovila" /></td>
-        <td><input value="${r.begransningsperiod || '100%'}" data-i="${i}" data-f="begransningsperiod" /></td>
-        <td><input value="${r.planering || ''}" data-i="${i}" data-f="planering" /></td>
-        <td><input value="${r.manuDatumKl || ''}" data-i="${i}" data-f="manuDatumKl" /></td>
-        <td><input value="${r.manuStartdatum || ''}" data-i="${i}" data-f="manuStartdatum" /></td>
-        <td><input value="${r.periodDgr || ''}" data-i="${i}" data-f="periodDgr" /></td>
-        <td><input type="date" value="${r.planFrom || ''}" data-i="${i}" data-f="planFrom" /></td>
-        <td>
-          <select data-i="${i}" data-f="planToMode">
-            <option value="date" ${r.planTo !== "Öppet" ? "selected" : ""}>Datum</option>
-            <option value="open" ${r.planTo === "Öppet" ? "selected" : ""}>Öppet</option>
-          </select>
-          <input type="date" value="${r.planTo === "Öppet" ? "" : r.planTo}" 
-                 data-i="${i}" data-f="planToDate"
-                 style="${r.planTo === "Öppet" ? "display:none" : ""}" />
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
 
-    tbody.querySelectorAll("input").forEach(el => {
-      el.oninput = (e) => {
-        const i = e.target.dataset.i;
-        const f = e.target.dataset.f;
-        if (rows[i]) rows[i][f] = e.target.value;
-      };
-    });
+    rows.forEach(
+      (row, index) => {
 
-    tbody.querySelectorAll("select").forEach(el => {
-      el.onchange = (e) => {
-        const i = e.target.dataset.i;
-        const f = e.target.dataset.f;
-        const val = e.target.value;
-        if (f === "toMode") {
-          rows[i].to = val === "open" ? "Öppet" : "";
-          render();
-        } else if (f === "planToMode") {
-          rows[i].planTo = val === "open" ? "Öppet" : "";
-          render();
-        }
-      };
-    });
+        const tr =
+          document.createElement("tr");
+
+        tr.innerHTML = `
+
+          <td>
+
+            <input
+              value="${row.name || ""}"
+              data-i="${index}"
+              data-f="name">
+
+          </td>
+
+          <td>
+
+            <input
+              value="${row.personnr || ""}"
+              data-i="${index}"
+              data-f="personnr">
+
+          </td>
+
+          <td>
+
+            <input
+              type="date"
+              value="${row.from || ""}"
+              data-i="${index}"
+              data-f="from">
+
+          </td>
+
+          <td>
+
+            <input
+              value="${row.to || ""}"
+              data-i="${index}"
+              data-f="to">
+
+          </td>
+
+          <td>
+
+            <input
+              value="${row.passTyp || ""}"
+              data-i="${index}"
+              data-f="passTyp">
+
+          </td>
+
+          <td>
+
+            <input
+              value="${row.time || ""}"
+              data-i="${index}"
+              data-f="time">
+
+          </td>
+
+          <td>
+
+            <input
+              placeholder="645 1515 30"
+              data-shift="${index}">
+
+          </td>
+
+        `;
+
+        tbody.appendChild(tr);
+
+      }
+    );
+
+    tbody
+      .querySelectorAll("input[data-i]")
+      .forEach(input => {
+
+        input.oninput = e => {
+
+          const index =
+            Number(
+              e.target.dataset.i
+            );
+
+          const field =
+            e.target.dataset.f;
+
+          rows[index][field] =
+            e.target.value;
+
+        };
+
+      });
+
+    tbody
+      .querySelectorAll(
+        "input[data-shift]"
+      )
+      .forEach(input => {
+
+        input.onkeydown = e => {
+
+          if (
+            e.key !== "Enter"
+          ) {
+            return;
+          }
+
+          const index =
+            Number(
+              e.target.dataset.shift
+            );
+
+          const shift =
+            parseHeromaShift(
+              e.target.value
+            );
+
+          if (!shift) {
+
+            alert(
+              "Fel format. Exempel: 645 1515 30"
+            );
+
+            return;
+          }
+
+          const date =
+            rows[index].from
+            ||
+            period.from;
+
+          rows[index].shifts[
+            date
+          ] = shift;
+
+          e.target.style.background =
+            "#c8f7c5";
+
+          e.target.title =
+            `${shift.start}-${shift.end} Rast ${shift.break}`;
+
+        };
+
+      });
+
   }
 
-  // ===== MODAL FÖR IMPORT =====
   function showImportModal() {
-    const employees = getEmployees();
-    if (employees.length === 0) {
-      alert("Det finns ingen personal att importera.");
+
+    const employees =
+      getEmployees();
+
+    if (
+      employees.length === 0
+    ) {
+
+      alert(
+        "Ingen personal finns att importera."
+      );
+
       return;
     }
 
-    const overlay = document.createElement("div");
+    const overlay =
+      document.createElement(
+        "div"
+      );
+
     overlay.style.cssText = `
-      position: fixed; top:0; left:0; width:100%; height:100%;
-      background: rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center;
-      z-index: 9999;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.4);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      z-index:9999;
     `;
 
-    const modal = document.createElement("div");
+    const modal =
+      document.createElement(
+        "div"
+      );
+
     modal.style.cssText = `
-      background: white; padding: 20px; border-radius: 8px;
-      max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;
+      background:white;
+      padding:20px;
+      border-radius:8px;
+      width:500px;
+      max-height:80vh;
+      overflow:auto;
     `;
+
     modal.innerHTML = `
-      <h3>Välj personal att importera</h3>
-      <div id="employeeChecklist" style="margin: 10px 0;"></div>
-      <div style="display:flex; gap:10px; margin-top:10px;">
-        <button id="selectAllBtn" style="padding:6px 12px;">✅ Markera alla</button>
-        <button id="deselectAllBtn" style="padding:6px 12px;">❌ Avmarkera alla</button>
+
+      <h3>
+        Importera personal
+      </h3>
+
+      <div id="list"></div>
+
+      <div style="
+        margin-top:15px;
+        display:flex;
+        gap:10px;
+      ">
+
+        <button id="okBtn">
+          Importera
+        </button>
+
+        <button id="cancelBtn">
+          Avbryt
+        </button>
+
       </div>
-      <div style="display:flex; gap:10px; margin-top:15px;">
-        <button id="importSelectedBtn" style="padding:8px 20px; background:#2ecc71; color:white; border:none; border-radius:4px;">Importera valda</button>
-        <button id="closeModalBtn" style="padding:8px 20px; background:#e74c3c; color:white; border:none; border-radius:4px;">Avbryt</button>
-      </div>
+
     `;
 
-    const checklist = modal.querySelector("#employeeChecklist");
-    employees.forEach((emp, idx) => {
-      const label = document.createElement("label");
-      label.style.display = "block";
-      label.style.margin = "4px 0";
-      const name = emp.name || emp.aviseringsnamn || `${emp.fornamn} ${emp.efternamn}`.trim() || "Namnlös";
-      const checked = !rows.some(r => r.name === name) ? "checked" : "";
-      label.innerHTML = `
-        <input type="checkbox" data-idx="${idx}" ${checked} />
-        ${name} (${emp.competence || "SSK"})
-      `;
-      checklist.appendChild(label);
-    });
+    const list =
+      modal.querySelector(
+        "#list"
+      );
 
-    overlay.appendChild(modal);
-    document.body.appendChild(overlay);
+    employees.forEach(
+      (employee, index) => {
 
-    modal.querySelector("#selectAllBtn").onclick = () => {
-      checklist.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = true);
+        const name =
+          employee.name
+          ||
+          employee.aviseringsnamn
+          ||
+          `${employee.fornamn || ""}
+           ${employee.efternamn || ""}`
+          .trim();
+
+        const row =
+          document.createElement(
+            "label"
+          );
+
+        row.style.display =
+          "block";
+
+        row.style.margin =
+          "4px 0";
+
+        row.innerHTML = `
+
+          <input
+            type="checkbox"
+            checked
+            data-index="${index}">
+
+          ${name}
+
+        `;
+
+        list.appendChild(row);
+
+      }
+    );
+
+    modal
+      .querySelector(
+        "#cancelBtn"
+      )
+      .onclick = () => {
+
+      document.body.removeChild(
+        overlay
+      );
+
     };
-    modal.querySelector("#deselectAllBtn").onclick = () => {
-      checklist.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = false);
-    };
 
-    modal.querySelector("#importSelectedBtn").onclick = () => {
+    modal
+      .querySelector(
+        "#okBtn"
+      )
+      .onclick = () => {
+
       const selected = [];
-      checklist.querySelectorAll("input[type=checkbox]:checked").forEach(cb => {
-        const idx = parseInt(cb.dataset.idx);
-        selected.push(employees[idx]);
-      });
-      if (selected.length === 0) {
-        alert("Inga personer valda.");
-        return;
-      }
-      const from = "2026-06-30";
-      const to = "2026-06-30";
-      let added = 0;
-      selected.forEach(emp => {
-        const name = emp.name || emp.aviseringsnamn || `${emp.fornamn} ${emp.efternamn}`.trim();
-        if (name && !rows.some(r => r.name === name)) {
-          rows.push({
-            name: name,
-            personnr: "",
-            from: from,
-            to: to || "Öppet",
-            passTyp: "Aktiv/Bunden",
-            days: 0,
-            time: "40:00",
-            kalenderdagsfaktor: "1,0",
-            dygnsvila: "11:00",
-            veckovila: "36:00",
-            begransningsperiod: "100%",
-            planering: "",
-            manuDatumKl: "",
-            manuStartdatum: "",
-            periodDgr: "",
-            planFrom: "",
-            planTo: "Öppet"
-          });
-          added++;
+
+      modal
+        .querySelectorAll(
+          "input[type='checkbox']:checked"
+        )
+        .forEach(cb => {
+
+          selected.push(
+            employees[
+              Number(
+                cb.dataset.index
+              )
+            ]
+          );
+
+        });
+
+      selected.forEach(
+        employee => {
+
+          const name =
+            employee.name
+            ||
+            employee.aviseringsnamn
+            ||
+            `${employee.fornamn || ""}
+             ${employee.efternamn || ""}`
+            .trim();
+
+          const exists =
+            rows.some(
+              row =>
+                row.name ===
+                name
+            );
+
+          if (exists) {
+            return;
+          }
+
+          rows.push(
+            createEmployeeRow(
+              name
+            )
+          );
+
         }
-      });
-      if (added === 0) {
-        alert("Alla valda personer finns redan i listan.");
-      } else {
-        alert(`${added} personer importerades.`);
-        render();
-      }
-      document.body.removeChild(overlay);
+      );
+
+      render();
+
+      document.body.removeChild(
+        overlay
+      );
+
     };
 
-    modal.querySelector("#closeModalBtn").onclick = () => {
-      document.body.removeChild(overlay);
-    };
+    overlay.appendChild(
+      modal
+    );
 
-    overlay.onclick = (e) => {
-      if (e.target === overlay) document.body.removeChild(overlay);
-    };
+    document.body.appendChild(
+      overlay
+    );
   }
 
-  // ===== KNAPPAR =====
-  container.querySelector("#add").onclick = () => {
-    const first = rows[0] || { 
-      name: "", from: "", to: "", days: 0, passTyp: "Aktiv/Bunden", time: "40:00",
-      kalenderdagsfaktor: "1,0", dygnsvila: "11:00", veckovila: "36:00",
-      begransningsperiod: "100%", planering: "", manuDatumKl: "", manuStartdatum: "",
-      periodDgr: "", planFrom: "", planTo: "Öppet"
-    };
-    const newRow = { ...first };
-    newRow.name = "Ny person";
-    newRow.personnr = "";
-    rows.push(newRow);
+  container.querySelector(
+    "#add"
+  ).onclick = () => {
+
+    rows.push(
+      createEmployeeRow(
+        "Ny person"
+      )
+    );
+
     render();
+
   };
 
-  container.querySelector("#remove").onclick = () => {
-    if (rows.length > 1) { rows.pop(); render(); }
-    else alert("Måste ha minst en rad.");
+  container.querySelector(
+    "#remove"
+  ).onclick = () => {
+
+    if (rows.length === 0) {
+
+      alert(
+        "Ingen person att ta bort."
+      );
+
+      return;
+    }
+
+    rows.pop();
+
+    render();
+
   };
 
-  container.querySelector("#save").onclick = () => {
-    period.rows = rows;
-    import("../periods/periodService.js").then(({ savePeriodsToStorage }) => {
-      savePeriodsToStorage();
-      alert("Schema sparat!");
-    });
+  container.querySelector(
+    "#importStaff"
+  ).onclick =
+    showImportModal;
+
+  container.querySelector(
+    "#save"
+  ).onclick = () => {
+
+    period.rows =
+      rows.map(row => ({
+
+        ...row,
+
+        shifts:
+          row.shifts || {}
+
+      }));
+
+    import(
+      "../periods/periodService.js"
+    ).then(
+      ({
+        savePeriodsToStorage
+      }) => {
+
+        savePeriodsToStorage();
+
+        alert(
+          "Schema sparat."
+        );
+
+      }
+    );
+
   };
 
-  // 🔥 Planera-knappen navigerar till overview
-  container.querySelector("#plan").onclick = () => {
-    import("../shared/state/store.js").then(({ setState }) => {
-      setState("currentView", "overview");
-      window.dispatchEvent(new Event("navigate"));
-    });
-  };
+  container.querySelector(
+    "#plan"
+  ).onclick = () => {
 
-  container.querySelector("#importStaff").onclick = showImportModal;
+    period.rows =
+      rows.map(row => ({
+
+        ...row,
+
+        shifts:
+          row.shifts || {}
+
+      }));
+
+    import(
+      "../periods/periodService.js"
+    ).then(
+      ({
+        savePeriodsToStorage
+      }) => {
+
+        savePeriodsToStorage();
+
+        import(
+          "../shared/state/store.js"
+        ).then(
+          ({ setState }) => {
+
+            setState(
+              "currentView",
+              "overview"
+            );
+
+            window.dispatchEvent(
+              new Event(
+                "navigate"
+              )
+            );
+
+          }
+        );
+
+      }
+    );
+
+  };
 
   render();
+
   return container;
+
 }
