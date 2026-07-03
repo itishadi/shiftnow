@@ -69,15 +69,6 @@
   );
 }
 
-.heroma-week-row td {
-  background: #f2f2f2;
-  vertical-align: top;
-}
-
-.heroma-week-row td:first-child {
-  background: #e4dfd6;
-  width: 220px;
-}
 
 .week-label {
   font-weight: bold;
@@ -217,7 +208,7 @@
 
   width: 100%;
 
-  height: 28px;
+  height: 24px;
 
   cursor: pointer;
 
@@ -285,6 +276,14 @@
 
   z-index: 2;
 
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 2px;
+
 }
 
 .shift-block:hover {
@@ -317,19 +316,17 @@
 
   position: relative;
 
-  height: 28px;
+  height: 18px;
 
   padding: 0;
 
-  background: #f5f0dc;
+  background: #f2f2f2;
 
 }
 
 .heroma-week-row td:first-child {
 
   background: #e4dfd6;
-
-  padding: 4px;
 
 }
 
@@ -445,28 +442,6 @@
 
 }
 
-.shift-block {
-
-  position: absolute;
-
-  top: 3px;
-
-  height: 20px;
-
-  line-height: 18px;
-
-  text-align: center;
-
-  overflow: hidden;
-
-  white-space: nowrap;
-
-  font-size: 11px;
-
-  box-sizing: border-box;
-
-}
-
 .timeblocks-panel {
 
   display: flex;
@@ -491,7 +466,6 @@
 
   border: 1px solid #ccc;
 
-  background: white;
 
   font-size: 11px;
 
@@ -514,3 +488,54 @@
   background: #dcecff;
 
 }
+.active-cell {
+
+  outline: 2px dashed #ff6600;
+
+  outline-offset: -2px;
+
+  background: #fff7cc;
+
+}
+.cell-editor {
+
+  width: 100%;
+
+  height: 24px;
+
+  line-height: 24px;
+
+  text-align: center;
+
+  font-size: 12px;
+
+  cursor: text;
+
+  user-select: none;
+
+}
+
+.shift-type-night {
+
+  background: #8b5cf6;
+
+  color: white;
+
+  border: 1px solid #5b21b6;
+
+}
+
+.break-box {
+
+  display: inline-block;
+
+  width: 6px;
+
+  height: 100%;
+
+  background: white;
+
+  margin: 0 2px;
+
+}
+

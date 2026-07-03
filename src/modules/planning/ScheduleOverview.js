@@ -11,6 +11,15 @@ import {
 }
 from "./timeBlocks.js";
 
+import {
+  shiftRoles,
+  getRole,
+  getAllRoles,
+  createRole,
+  deleteRole
+}
+from "../shifts/shiftRoles.js";
+
 export function ScheduleOverview(
   periods,
   currentPeriodId
@@ -42,6 +51,12 @@ export function ScheduleOverview(
 
   let selectedWeek =
     null;
+
+  let activeCell =
+    null;
+
+  let cellInput =
+    "";
 
   const dayNames = [
 
@@ -484,52 +499,6 @@ function getShiftWidth(
 
 }
 
- function getShiftWidth(
-  shift
-) {
-
-  const [
-    sh,
-    sm
-  ] =
-    shift.start
-    .split(":")
-    .map(Number);
-
-  const [
-    eh,
-    em
-  ] =
-    shift.end
-    .split(":")
-    .map(Number);
-
-  let start =
-    sh * 60 + sm;
-
-  let end =
-    eh * 60 + em;
-
-  if (
-    end < start
-  ) {
-
-    end += 1440;
-
-  }
-
-  const duration =
-    end - start;
-
-  return Math.max(
-    12,
-    (
-      duration / 1440
-    ) * 100
-  );
-
-}
-
   function getShiftClass(
     shift
   ) {
@@ -563,6 +532,22 @@ function getShiftWidth(
 
     const cleaned =
       value.trim();
+
+      if (
+  cleaned.length === 1
+) {
+
+  return `0${cleaned}:00`;
+
+}
+
+if (
+  cleaned.length === 2
+) {
+
+  return `${cleaned}:00`;
+
+}
 
     if (
       cleaned.length === 3
@@ -604,9 +589,7 @@ function createShift(
       .toUpperCase();
 
     const block =
-      timeBlocks[
-        code
-      ];
+      timeBlocks[code];
 
     if (!block) {
       return;
@@ -655,11 +638,25 @@ function createShift(
     parts.length >= 4
   ) {
 
-    const code =
+    const role =
       parts[
         parts.length - 1
       ]
-      .toUpperCase();
+      .toLowerCase();
+
+    const roleInfo =
+      getRole(role);
+
+    if (!roleInfo) {
+
+      alert(
+        "Färgblock saknas: " +
+        role
+      );
+
+      return;
+
+    }
 
     const start =
       parseTime(
@@ -671,41 +668,18 @@ function createShift(
         parts[1]
       );
 
+    const mealBreak =
+      parts.some(
+        p =>
+          p.toLowerCase() === "m"
+      );
+
     const breakMinutes =
-      Number(
-        parts[2]
-      );
-
-    let block =
-      timeBlocks[
-        code
-      ];
-
-    if (!block) {
-
-      block = {
-
-        code,
-
-        title: code,
-
-        start,
-
-        end,
-
-        break:
-          breakMinutes,
-
-        color:
-          "shift-type-default"
-
-      };
-
-      addOrUpdateTimeBlock(
-        block
-      );
-      saveTimeBlocks();
-    }
+      mealBreak
+        ? 0
+        : Number(
+            parts[2]
+          );
 
     if (
       !person.shifts
@@ -727,15 +701,15 @@ function createShift(
         breakMinutes,
 
       title:
-        block.title,
+        roleInfo.title,
 
-      code,
+      code:
+        roleInfo.code.toUpperCase(),
 
       color:
-        block.color,
+        roleInfo.color,
 
-      mealBreak:
-        false
+      mealBreak
 
     };
 
@@ -912,6 +886,44 @@ function createShift(
     `;
 
   }
+ function renderShiftRoles() {
+
+  return `
+
+    <div class="timeblocks-panel">
+
+      <div class="timeblock-item add-role">
+
+        + Nytt färgblock
+
+      </div>
+
+      ${getAllRoles()
+        .map(
+          role => `
+
+            <div
+              class="timeblock-item ${role.color}">
+
+              <strong>
+                ${role.code.toUpperCase()}
+              </strong>
+
+              -
+
+              ${role.title}
+
+            </div>
+
+          `
+        )
+        .join("")}
+
+    </div>
+
+  `;
+
+}
 function renderTimeBlocks() {
 
     return `
@@ -930,8 +942,9 @@ function renderTimeBlocks() {
             block => `
 
               <div
-               class="timeblock-item"
-               data-code="${block.code}">
+                class="timeblock-item ${block.color || ''}"
+                data-code="${block.code}"
+                draggable="true">
 
                 <strong>
                   ${block.code}
@@ -958,6 +971,7 @@ function renderTimeBlocks() {
     `;
 
   }
+
   function render() {
 
     container.innerHTML =
@@ -1184,7 +1198,12 @@ function renderTimeBlocks() {
                   <td>
 
                   <div
-  class="day-slot"
+  class="day-slot ${
+    activeCell ===
+    `${personIndex}-${dateKey}`
+      ? "active-cell"
+      : ""
+  }"
   data-person="${personIndex}"
   data-date="${dateKey}">
 
@@ -1211,34 +1230,48 @@ ${shift.title || ""}
 
 ${shift.start} - ${shift.end}
 
-Rast: ${shift.break || 0} min
+${
+  shift.mealBreak
+    ? "Måltidsuppehåll"
+    : `${
+  shift.mealBreak
+    ? "Måltidsuppehåll"
+    : `Rast: ${shift.break || 0} min`
+}`
+}
 
 Passlängd: ${getShiftLength(
       shift
     )}">
 
-    ${shift.start.substring(
-      0,
-      5
-    )}
+   ${shift.start.substring(0,5)}
 
-    -
+${
+  shift.break > 0 && !shift.mealBreak
+    ? '<span class="break-box"></span>'
+    : ''
+}
 
-    ${shift.end.substring(
-      0,
-      5
-    )}
+${shift.end.substring(0,5)}
+
+
 
   </div>
 
   `
   : `
 
-  <input
-    class="shift-input"
-    data-person="${personIndex}"
-    data-date="${dateKey}"
-    maxlength="10">
+  <div
+    class="cell-editor">
+
+    ${
+      activeCell ===
+      `${personIndex}-${dateKey}`
+        ? cellInput
+        : ""
+    }
+
+  </div>
 
   `
 
@@ -1271,6 +1304,8 @@ Passlängd: ${getShiftLength(
       </table>
 
       ${renderTimeBlocks()}
+
+      ${renderShiftRoles()}
 
     `;
 
@@ -1350,57 +1385,258 @@ Passlängd: ${getShiftLength(
         }
       );
 
-    container
+      container
   .querySelectorAll(
-    ".shift-input"
+    ".day-slot"
   )
   .forEach(
-    input => {
-input.addEventListener(
-  "click",
-  () => {
+    cell => {
 
-    input.focus();
+     cell.onclick =() => {
 
-    input.select();
+    activeCell =
+      `${cell.dataset.person}-${cell.dataset.date}`;
 
-  }
-);
-      input.addEventListener(
-        "keydown",
-        e => {
+    render();
 
-          if (
-            e.key !== "Enter"
-          ) {
+  };
 
-            return;
+  cell.ondragover = e => {
 
-          }
+    e.preventDefault();
 
-          const person =
-            period.rows[
-              Number(
-                input.dataset.person
-              )
-            ];
+  };
+  cell.ondrop =
+  e => {
 
-          const date =
-            input.dataset.date;
+    e.preventDefault();
 
-          createShift(
-            input.value,
-            date,
-            person
-          );
-
-          render();
-
-        }
+    const code =
+      e.dataTransfer.getData(
+        "text/plain"
       );
 
+    const block =
+      timeBlocks[code];
+
+    if (!block) {
+      return;
     }
+
+    const person =
+      period.rows[
+        Number(
+          cell.dataset.person
+        )
+      ];
+
+    if (
+      !person.shifts
+    ) {
+
+      person.shifts = {};
+
+    }
+
+    person.shifts[
+      cell.dataset.date
+    ] = {
+
+      start:
+        block.start,
+
+      end:
+        block.end,
+
+      break:
+        block.break,
+
+      title:
+        block.title,
+
+      code:
+        block.code,
+
+      color:
+        block.color,
+
+      mealBreak:
+        false
+
+    };
+
+    render();
+
+  };
+
+    }
+  );  
+  document.onkeydown =
+  e => {
+
+    if (
+      !activeCell
+    ) {
+      return;
+    }
+if (
+  e.key === "ArrowRight" ||
+  e.key === "ArrowLeft" ||
+  e.key === "ArrowUp" ||
+  e.key === "ArrowDown"
+) {
+
+  e.preventDefault();
+
+  const cells =
+    Array.from(
+      container.querySelectorAll(
+        ".day-slot"
+      )
+    );
+
+  const currentIndex =
+    cells.findIndex(
+      cell =>
+        `${cell.dataset.person}-${cell.dataset.date}` ===
+        activeCell
+    );
+
+  if (
+    currentIndex === -1
+  ) {
+
+    return;
+
+  }
+
+  let nextIndex =
+    currentIndex;
+
+  if (
+    e.key ===
+    "ArrowRight"
+  ) {
+
+    nextIndex++;
+
+  }
+
+  if (
+    e.key ===
+    "ArrowLeft"
+  ) {
+
+    nextIndex--;
+
+  }
+
+  if (
+    e.key ===
+    "ArrowDown"
+  ) {
+
+    nextIndex += 7;
+
+  }
+
+  if (
+    e.key ===
+    "ArrowUp"
+  ) {
+
+    nextIndex -= 7;
+
+  }
+
+  if (
+    nextIndex >= 0 &&
+    nextIndex < cells.length
+  ) {
+
+    const nextCell =
+      cells[nextIndex];
+
+    activeCell =
+      `${nextCell.dataset.person}-${nextCell.dataset.date}`;
+
+    render();
+
+  }
+
+  return;
+
+}
+    if (
+  e.key ===
+  "Enter"
+) {
+
+  const parts =
+    activeCell.split(
+      "-"
+    );
+
+  const personIndex =
+    parts[0];
+
+  const date =
+    parts
+      .slice(1)
+      .join("-");
+
+  const person =
+    period.rows[
+      Number(
+        personIndex
+      )
+    ];
+
+  createShift(
+    cellInput,
+    date,
+    person
   );
+
+  cellInput =
+    "";
+
+  render();
+
+  return;
+
+}
+
+    if (
+      e.key ===
+      "Backspace"
+    ) {
+
+        cellInput =
+          cellInput.slice(
+            0,
+            -1
+          );
+
+        render();
+
+        return;
+
+    }
+
+    if (
+      e.key.length === 1
+    ) {
+
+      cellInput +=
+        e.key;
+
+      render();
+
+    }
+
+  };
+   
       container
   .querySelectorAll(
     ".heroma-person-row"
@@ -1512,11 +1748,49 @@ container
 
     }
   );
+  container
+  .querySelectorAll(
+    ".timeblock-item[data-code]"
+  )
+  .forEach(
+    item => {
+
+      item.ondragstart =
+        e => {
+
+          e.dataTransfer.setData(
+            "text/plain",
+            item.dataset.code
+          );
+
+        };
+
+    }
+  );
 
 const addBlock =
   container.querySelector(
     ".add-timeblock"
   );
+  const addRole =
+  container.querySelector(
+    ".add-role"
+  );
+
+if (
+  addRole
+) {
+
+  addRole.onclick =
+    () => {
+
+      createRole();
+
+      render();
+
+    };
+
+}
 
 if (
   addBlock
@@ -1540,3 +1814,4 @@ render();
 return container;
 
 }
+

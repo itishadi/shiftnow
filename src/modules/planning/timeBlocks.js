@@ -1,3 +1,8 @@
+import {
+  getRole
+}
+from "../shifts/shiftRoles.js";
+
 export let timeBlocks = {
 
   A: {
@@ -430,6 +435,30 @@ export function createTimeBlock() {
     return;
   }
 
+  const roleCode =
+    prompt(
+      "Färgblock (t.ex. SSK eller USK)"
+    );
+
+  if (!roleCode) {
+    return;
+  }
+
+  const role =
+    getRole(
+      roleCode
+    );
+
+  if (!role) {
+
+    alert(
+      "Färgblock finns inte"
+    );
+
+    return;
+
+  }
+
   const start =
     prompt(
       "Starttid",
@@ -456,12 +485,6 @@ export function createTimeBlock() {
       "30"
     );
 
-  const color =
-    prompt(
-      "Färgklass",
-      "shift-type-usk"
-    );
-
   timeBlocks[
     code.toUpperCase()
   ] = {
@@ -480,7 +503,11 @@ export function createTimeBlock() {
         breakMinutes || 0
       ),
 
-    color
+    color:
+      role.color,
+
+    role:
+      role.code
 
   };
 
