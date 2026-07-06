@@ -80,6 +80,80 @@ export function ScheduleOverview(
 
   }
 
+  function isDateActive(
+  date,
+  person
+) {
+
+  const current =
+    formatDate(date);
+
+  const from =
+    person.from ||
+    period.from;
+
+  const to =
+    person.to &&
+    person.to !== "Öppet"
+      ? person.to
+      : period.to;
+
+  return (
+    current >= from &&
+    current <= to
+  );
+
+}
+
+
+function shiftOutsidePeriod(
+  shift,
+  date,
+  person
+) {
+
+  const [
+    sh,
+    sm
+  ] = shift.start
+    .split(":")
+    .map(Number);
+
+  const [
+    eh,
+    em
+  ] = shift.end
+    .split(":")
+    .map(Number);
+
+  const startMinutes =
+    sh * 60 + sm;
+
+  const endMinutes =
+    eh * 60 + em;
+
+  if (
+    endMinutes >= startMinutes
+  ) {
+
+    return false;
+
+  }
+
+  const nextDate =
+    new Date(date);
+
+  nextDate.setDate(
+    nextDate.getDate() + 1
+  );
+
+  return !isDateActive(
+    nextDate,
+    person
+  );
+
+}
+
   function getWeekNumber(
     date
   ) {
@@ -603,9 +677,7 @@ function createShift(
 
     }
 
-    person.shifts[
-      date
-    ] = {
+    const newShift = {
 
       start:
         block.start,
@@ -629,6 +701,26 @@ function createShift(
         false
 
     };
+
+    if (
+      shiftOutsidePeriod(
+        newShift,
+        new Date(date),
+        person
+      )
+    ) {
+
+      alert(
+        "Passet går utanför planeringsperioden.\n\nÄndra passet eller utöka datumintervallet."
+      );
+
+      return;
+
+    }
+
+    person.shifts[
+      date
+    ] = newShift;
 
     return;
 
@@ -689,9 +781,7 @@ function createShift(
 
     }
 
-    person.shifts[
-      date
-    ] = {
+    const newShift = {
 
       start,
 
@@ -712,6 +802,26 @@ function createShift(
       mealBreak
 
     };
+
+    if (
+      shiftOutsidePeriod(
+        newShift,
+        new Date(date),
+        person
+      )
+    ) {
+
+      alert(
+        "Passet går utanför planeringsperioden.\n\nÄndra passet eller utöka datumintervallet."
+      );
+
+      return;
+
+    }
+
+    person.shifts[
+      date
+    ] = newShift;
 
   }
 
@@ -1198,21 +1308,38 @@ function renderTimeBlocks() {
                   <td>
 
                   <div
-  class="day-slot ${
+  class="day-slot
+  ${
     activeCell ===
     `${personIndex}-${dateKey}`
       ? "active-cell"
       : ""
+  }
+  ${
+    !isDateActive(
+      date,
+      person
+    )
+      ? "inactive-day"
+      : ""
   }"
+  data-active="${isDateActive(
+    date,
+    person
+  )}"
   data-person="${personIndex}"
-  data-date="${dateKey}">
+  data-date="${dateKey}"
+>
 
   ${
   shift
   ? `
 
   <div
-    class="shift-block ${shift.color || ""}"
+  class="shift-block ${shift.color || ""}"
+  draggable="true"
+  data-shift-person="${personIndex}"
+  data-shift-date="${dateKey}"
 
     style="
       left:${getShiftPosition(
@@ -1392,25 +1519,142 @@ ${shift.end.substring(0,5)}
   .forEach(
     cell => {
 
-     cell.onclick =() => {
+     cell.onclick = () => {
 
-    activeCell =
-      `${cell.dataset.person}-${cell.dataset.date}`;
+  if (
+    cell.dataset.active !== "true"
+  ) {
 
-    render();
+    return;
 
-  };
+  }
 
-  cell.ondragover = e => {
+  activeCell =
+    `${cell.dataset.person}-${cell.dataset.date}`;
 
-    e.preventDefault();
+  render();
 
-  };
-  cell.ondrop =
-  e => {
+};
 
-    e.preventDefault();
 
+ cell.ondragover =
+e => {
+
+  if (
+    cell.dataset.active !== "true"
+  ) {
+
+    return;
+
+  }
+
+  e.preventDefault();
+
+};
+
+    cell.ondrop =
+e => {
+
+  if (
+    cell.dataset.active !== "true"
+  ) {
+
+    return;
+
+  }
+
+  e.preventDefault();
+
+  const sourcePerson =
+    e.dataTransfer.getData(
+      "shift-person"
+    );
+
+  const sourceDate =
+    e.dataTransfer.getData(
+      "shift-date"
+    );
+
+    if (
+  sourcePerson === cell.dataset.person &&
+  sourceDate === cell.dataset.date
+) {
+
+  return;
+
+}
+
+
+  if (
+  sourcePerson &&
+  sourceDate
+) {
+
+  const fromPerson =
+    period.rows[
+      Number(
+        sourcePerson
+      )
+    ];
+
+  const shift =
+    fromPerson.shifts[
+      sourceDate
+    ];
+
+  if (!shift) {
+    return;
+  }
+
+  const targetPerson =
+    period.rows[
+      Number(
+        cell.dataset.person
+      )
+    ];
+
+  if (
+    !targetPerson.shifts
+  ) {
+
+    targetPerson.shifts = {};
+
+  }
+
+if (
+  shiftOutsidePeriod(
+    shift,
+    new Date(
+      cell.dataset.date
+    ),
+    targetPerson
+  )
+) {
+
+  alert(
+    "Passet går utanför planeringsperioden.\n\nÄndra passet eller utöka datumintervallet."
+  );
+
+  return;
+
+}
+
+targetPerson.shifts[
+  cell.dataset.date
+] = {
+  ...shift
+};
+
+delete fromPerson.shifts[
+  sourceDate
+];
+
+  render();
+
+  return;
+
+}
+  
     const code =
       e.dataTransfer.getData(
         "text/plain"
@@ -1438,32 +1682,52 @@ ${shift.end.substring(0,5)}
 
     }
 
-    person.shifts[
+    const newShift = {
+
+  start:
+    block.start,
+
+  end:
+    block.end,
+
+  break:
+    block.break,
+
+  title:
+    block.title,
+
+  code:
+    block.code,
+
+  color:
+    block.color,
+
+  mealBreak:
+    false
+
+};
+
+if (
+  shiftOutsidePeriod(
+    newShift,
+    new Date(
       cell.dataset.date
-    ] = {
+    ),
+    person
+  )
+) {
 
-      start:
-        block.start,
+  alert(
+    "Passet går utanför planeringsperioden.\n\nÄndra passet eller utöka datumintervallet."
+  );
 
-      end:
-        block.end,
+  return;
 
-      break:
-        block.break,
+}
 
-      title:
-        block.title,
-
-      code:
-        block.code,
-
-      color:
-        block.color,
-
-      mealBreak:
-        false
-
-    };
+person.shifts[
+  cell.dataset.date
+] = newShift;
 
     render();
 
@@ -1748,7 +2012,7 @@ container
 
     }
   );
-  container
+ container
   .querySelectorAll(
     ".timeblock-item[data-code]"
   )
@@ -1768,6 +2032,30 @@ container
     }
   );
 
+container
+  .querySelectorAll(
+    ".shift-block"
+  )
+  .forEach(
+    item => {
+
+      item.ondragstart =
+        e => {
+
+          e.dataTransfer.setData(
+            "shift-person",
+            item.dataset.shiftPerson
+          );
+
+          e.dataTransfer.setData(
+            "shift-date",
+            item.dataset.shiftDate
+          );
+
+        };
+
+    }
+  );
 const addBlock =
   container.querySelector(
     ".add-timeblock"
@@ -1814,4 +2102,3 @@ render();
 return container;
 
 }
-
