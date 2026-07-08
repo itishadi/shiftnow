@@ -18,32 +18,41 @@ export function ScheduleGrid(period) {
 
   function createEmployeeRow(name) {
 
-    return {
+   return {
 
-      name,
+  name,
 
-      personnr: "",
+  status: "Planeras",
 
-      from: period.from || "",
+  personnr: "",
 
-      to: period.to || "Öppet",
+  from: period.from || "",
 
-      passTyp: "Aktiv/Bunden",
+  to: period.to || "Öppet",
 
-      days: 0,
+  passTyp: "Aktiv/Bunden",
 
-      time: "40:00",
+  days: 0,
 
-      kalenderdagsfaktor: "1,0",
+  time: "40:00",
 
-      dygnsvila: "11:00",
+  veckor: "",
 
-      veckovila: "36:00",
+  semesterkoeff: "0,00",
 
-      begransningsperiod: "100%",
+  kalenderdagsfaktor: "1,0",
 
-      shifts: {}
-    };
+  dygnsvila: "11:00",
+
+  veckovila: "36:00",
+
+  begransningsperiod: "100%",
+
+  planering: "",
+
+  shifts: {}
+
+};
   }
 
   function parseHeromaShift(text) {
@@ -92,27 +101,45 @@ export function ScheduleGrid(period) {
 
       <table id="scheduleTable">
 
-        <thead>
+       <thead>
 
-          <tr>
+  <tr>
 
-            <th>Namn</th>
+    <th>Namn</th>
 
-            <th>Personnr</th>
+    <th>Personnr/Idnr</th>
 
-            <th>From</th>
+    <th>From</th>
 
-            <th>Tom</th>
+    <th>Tom</th>
 
-            <th>Passtyp</th>
+    <th>Passtyp</th>
 
-            <th>Tid</th>
+    <th>Rullande</th>
 
-            <th>Testpass</th>
+    <th>Tid</th>
 
-          </tr>
+    <th>Veckor</th>
 
-        </thead>
+    <th>Semesterkoeff.</th>
+
+    <th>Kalenderdagsf.</th>
+
+    <th>Dygnsvila</th>
+
+    <th>Veckovila</th>
+
+    <th>Begränsningsperiod</th>
+
+    <th>Planering</th>
+
+    <th>Status</th>
+
+    <th>Testpass</th>
+
+  </tr>
+
+</thead>
 
         <tbody id="scheduleBody">
 
@@ -130,6 +157,10 @@ export function ScheduleGrid(period) {
 
       <button id="remove">
         Ta bort
+      </button>
+
+      <button id="approve">
+       Fastställ alla
       </button>
 
       <button id="save">
@@ -215,12 +246,81 @@ export function ScheduleGrid(period) {
 
           <td>
 
+              ${row.status || "Planeras"}
+
+          </td>
+
+          <td>
+
             <input
               value="${row.time || ""}"
               data-i="${index}"
               data-f="time">
 
           </td>
+
+          <td>
+
+  <input
+    value="${row.veckor || ""}"
+    data-i="${index}"
+    data-f="veckor">
+
+</td>
+
+<td>
+
+  <input
+    value="${row.semesterkoeff || "0,00"}"
+    data-i="${index}"
+    data-f="semesterkoeff">
+
+</td>
+
+<td>
+
+  <input
+    value="${row.kalenderdagsfaktor || "1,0"}"
+    data-i="${index}"
+    data-f="kalenderdagsfaktor">
+
+</td>
+
+<td>
+
+  <input
+    value="${row.dygnsvila || "11:00"}"
+    data-i="${index}"
+    data-f="dygnsvila">
+
+</td>
+
+<td>
+
+  <input
+    value="${row.veckovila || "36:00"}"
+    data-i="${index}"
+    data-f="veckovila">
+
+</td>
+
+<td>
+
+  <input
+    value="${row.begransningsperiod || "100%"}"
+    data-i="${index}"
+    data-f="begransningsperiod">
+
+</td>
+
+<td>
+
+  <input
+    value="${row.planering || ""}"
+    data-i="${index}"
+    data-f="planering">
+
+</td>
 
           <td>
 
@@ -629,8 +729,26 @@ export function ScheduleGrid(period) {
 
   };
 
+  container.querySelector(
+  "#approve"
+).onclick = () => {
+
+  rows.forEach(
+    row => {
+
+      row.status =
+        "Fastställd";
+
+    }
+  );
+
+  render();
+
+};
+
   render();
 
   return container;
 
 }
+

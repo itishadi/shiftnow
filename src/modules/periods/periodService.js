@@ -271,3 +271,34 @@ export function clearPeriods() {
     "shiftnow_periods"
   );
 }
+
+export function
+getPeriodStatus(
+  period
+) {
+
+  const rows =
+    period.rows || [];
+
+  const approved =
+    rows.filter(
+      r =>
+        r.status ===
+        "Fastställd"
+    ).length;
+
+  return {
+
+    total:
+      rows.length,
+
+    approved,
+
+    complete:
+      rows.length > 0 &&
+      approved ===
+      rows.length
+
+  };
+
+}

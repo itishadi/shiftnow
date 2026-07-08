@@ -1,118 +1,310 @@
-import { getPeriods, addPeriod } from "../modules/periods/periodService.js";
-import { PeriodList } from "../modules/periods/PeriodList.js";
-import { CreatePeriodView } from "../modules/periods/CreatePeriodView.js";
-import { ScheduleGrid } from "../modules/planning/ScheduleGrid.js";
-import { ScheduleOverview } from "../modules/planning/ScheduleOverview.js";
-import { EmployeeSelector } from "../modules/employees/EmployeeSelector.js";
-import { state, setState } from "../modules/shared/state/store.js";
+import {
+  getPeriods,
+  addPeriod
+}
+from "../modules/periods/periodService.js";
 
-const root = document.getElementById("app");
+import {
+  PeriodList
+}
+from "../modules/periods/PeriodList.js";
+
+import {
+  CreatePeriodView
+}
+from "../modules/periods/CreatePeriodView.js";
+
+import {
+  ScheduleGrid
+}
+from "../modules/planning/ScheduleGrid.js";
+
+import {
+  ScheduleOverview
+}
+from "../modules/planning/ScheduleOverview.js";
+
+import {
+  EmployeeSelector
+}
+from "../modules/employees/EmployeeSelector.js";
+
+import {
+  state,
+  setState
+}
+from "../modules/shared/state/store.js";
+
+const root =
+  document.getElementById("app");
 
 function init() {
-  const saved = localStorage.getItem("shiftnow_periods");
+
+  const saved =
+    localStorage.getItem(
+      "shiftnow_periods"
+    );
+
   if (saved) {
-    setState("periods", JSON.parse(saved));
+
+    setState(
+      "periods",
+      JSON.parse(saved)
+    );
+
   } else {
-    setState("periods", getPeriods());
+
+    setState(
+      "periods",
+      getPeriods()
+    );
+
   }
 
-  document.getElementById("navHome").onclick = () => {
-    setState("currentView", "home");
+  document.getElementById(
+    "navHome"
+  ).onclick = () => {
+
+    setState(
+      "currentView",
+      "home"
+    );
+
     render();
-  };
-  document.getElementById("navPlanning").onclick = () => {
-    setState("currentView", "planning");
-    render();
-  };
-  document.getElementById("navEmployees").onclick = () => {
-    setState("currentView", "employees");
-    render();
+
   };
 
-  window.addEventListener("navigate", render);
+  document.getElementById(
+    "navPlanning"
+  ).onclick = () => {
 
-  setState("currentView", "home");
+    setState(
+      "currentView",
+      "planning"
+    );
+
+    render();
+
+  };
+
+  document.getElementById(
+    "navEmployees"
+  ).onclick = () => {
+
+    setState(
+      "currentView",
+      "employees"
+    );
+
+    render();
+
+  };
+
+  window.addEventListener(
+    "navigate",
+    render
+  );
+
+  setState(
+    "currentView",
+    "home"
+  );
+
   render();
+
 }
 
 function selectPeriod(id) {
-  setState("currentPeriod", id);
-  setState("currentView", "grid");
+
+  setState(
+    "selectedPeriod",
+    id
+  );
+
   render();
+
 }
 
 function createNewPeriod() {
-  setState("currentView", "createPeriod");
+
+  setState(
+    "currentView",
+    "createPeriod"
+  );
+
   render();
+
 }
 
 function render() {
+
   root.innerHTML = "";
 
-  switch (state.currentView) {
+  switch (
+    state.currentView
+  ) {
+
     case "home":
-      root.innerHTML = `<h2>🏠 Välkommen till ShiftNow</h2><p>Välj en funktion i menyn till vänster.</p>`;
+
+      root.innerHTML = `
+
+        <h2>
+          🏠 Välkommen till ShiftNow
+        </h2>
+
+        <p>
+          Välj en funktion i menyn till vänster.
+        </p>
+
+      `;
+
       break;
 
     case "planning": {
-      const title = document.createElement("h2");
-      title.textContent = "📅 Schemaperioder";
-      root.appendChild(title);
 
-      const list = PeriodList(state.periods, selectPeriod);
-      root.appendChild(list);
+      const title =
+        document.createElement(
+          "h2"
+        );
 
-      const btn = document.createElement("button");
-      btn.textContent = "+ Ny period";
-      btn.onclick = createNewPeriod;
-      root.appendChild(btn);
+      title.textContent =
+        "📅 Schemaperioder";
+
+      root.appendChild(
+        title
+      );
+
+      const list =
+        PeriodList(
+          state.periods,
+          selectPeriod
+        );
+
+      root.appendChild(
+        list
+      );
+
       break;
     }
 
     case "createPeriod": {
-      const view = CreatePeriodView({
-        onSave: (data) => {
-          addPeriod(data);
-          setState("periods", getPeriods());
-          localStorage.setItem("shiftnow_periods", JSON.stringify(getPeriods()));
-          setState("currentView", "planning");
-          render();
-        },
-        onCancel: () => {
-          setState("currentView", "planning");
-          render();
-        }
-      });
-      root.appendChild(view);
+
+      const view =
+        CreatePeriodView({
+
+          onSave: data => {
+
+            addPeriod(data);
+
+            setState(
+              "periods",
+              getPeriods()
+            );
+
+            localStorage.setItem(
+              "shiftnow_periods",
+              JSON.stringify(
+                getPeriods()
+              )
+            );
+
+            setState(
+              "currentView",
+              "planning"
+            );
+
+            render();
+
+          },
+
+          onCancel: () => {
+
+            setState(
+              "currentView",
+              "planning"
+            );
+
+            render();
+
+          }
+
+        });
+
+      root.appendChild(
+        view
+      );
+
       break;
+
     }
 
     case "grid": {
-      const period = state.periods.find(p => p.id === state.currentPeriod);
+
+      const period =
+        state.periods.find(
+          p =>
+            p.id ===
+            state.currentPeriod
+        );
+
       if (!period) {
-        root.innerHTML = "<p>Perioden hittades inte.</p>";
+
+        root.innerHTML =
+          "<p>Perioden hittades inte.</p>";
+
         break;
+
       }
-      const grid = ScheduleGrid(period);
-      root.appendChild(grid);
+
+      const grid =
+        ScheduleGrid(
+          period
+        );
+
+      root.appendChild(
+        grid
+      );
+
       break;
+
     }
 
     case "overview": {
-      const overview = ScheduleOverview(state.periods, state.currentPeriod);
-      root.appendChild(overview);
+
+      const overview =
+        ScheduleOverview(
+          state.periods,
+          state.currentPeriod
+        );
+
+      root.appendChild(
+        overview
+      );
+
       break;
+
     }
 
     case "employees": {
-      const selector = EmployeeSelector();
-      root.appendChild(selector);
+
+      const selector =
+        EmployeeSelector();
+
+      root.appendChild(
+        selector
+      );
+
       break;
+
     }
 
     default:
-      root.innerHTML = "<p>Okänd vy.</p>";
+
+      root.innerHTML =
+        "<p>Okänd vy.</p>";
+
   }
+
 }
 
 init();

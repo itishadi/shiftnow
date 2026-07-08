@@ -1,151 +1,370 @@
-.period-card {
-  background: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 12px 16px;
-  margin: 6px 0;
-  cursor: pointer;
-  transition: 0.2s;
-}
-.period-card:hover {
-  background: #e8f4fd;
-  border-color: #3498db;
-}
-.period-card strong {
-  font-size: 16px;
-}
-.period-card small {
-  color: #555;
-}
+/* =====================================================
+   SCHEMAPERIODER - TOOLBAR
+===================================================== */
 
-/* ----- HUVUDCONTAINER ----- */
-.mv-container {
+.period-toolbar {
+
   display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-}
 
-/* HEADER – fast */
-.mv-header {
-  background: #2c3e50;
-  color: white;
+  gap: 8px;
+
   padding: 10px;
-  font-weight: bold;
-  flex-shrink: 0;
-}
 
-/* FORMULÄR – fast */
-.mv-body {
-  display: flex;
+  margin-bottom: 12px;
+
+  background: #dcdcdc;
+
+  border: 1px solid #bdbdbd;
+
+  border-radius: 4px;
+
   flex-wrap: wrap;
-  gap: 30px;
-  padding: 15px 0;
-  background: #cfe8a9;
-  flex-shrink: 0;
-}
-.mv-left, .mv-right {
-  flex: 1 1 250px;
-}
-.row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-}
-.row label {
-  width: 150px;
-  font-weight: 600;
-  font-size: 13px;
-}
-.input-short { width: 140px; }
-.input-long { width: 240px; }
 
-/* 🔥 "Skicka besked med:" – fast rad med samma bakgrund som rubrik */
-.mv-extra-row {
-  flex-shrink: 0;
-  padding: 6px 4px;
-  background: #d0d3d6;
-  font-weight: bold;
-  font-size: 13px;
-  border-top: 1px solid #bbb;
-  border-bottom: 1px solid #bbb;
 }
 
-/* ----- SCROLLBART INNEHÅLL – fyller hela mellanrummet ----- */
-.grid-wrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  border: 1px solid #ccc;
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
+.period-toolbar button {
 
-.grid-scroll-wrapper {
-  flex: 1;
-  overflow: auto;
-  min-height: 0;
-}
+  padding: 6px 14px;
 
-/* ----- TABELL ----- */
-#periodTable {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: auto;
-}
-#periodTable thead {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-#periodTable th {
-  background: #cfe8a9;
-  border: 1px solid #999;
-  padding: 6px;
-  text-align: left;
-  font-size: 12px;
-  white-space: nowrap;
-  min-width: 80px;
-  font-weight: bold;
-}
-#periodTable td {
-  border: 1px solid #ccc;
-  padding: 4px;
-  font-size: 12px;
-  white-space: nowrap;
-  min-width: 80px;
-}
-#periodTable input,
-#periodTable select {
-  width: 110px;
-  box-sizing: border-box;
-  border: 1px solid #999;
   background: white;
-  font-size: 11px;
-  padding: 2px;
-}
 
-/* ----- FOOTER – fast längst ner ----- */
-.grid-footer {
-  flex-shrink: 0;
-  background: #cfe8a9;
-  padding: 8px;
-  border-top: 1px solid #999;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  align-items: center;
-}
-.grid-footer button {
-  padding: 5px 12px;
+  border: 1px solid #999;
+
+  border-radius: 2px;
+
   cursor: pointer;
-  border: 1px solid #888;
-  border-radius: 3px;
-  background: white;
+
   font-size: 12px;
-  white-space: nowrap;
+
 }
+
+.period-toolbar button:hover {
+
+  background: #eef6ff;
+
+  border-color: #4f86d9;
+
+}
+
+/* =====================================================
+   PERIODKORT
+===================================================== */
+
+.period-card {
+
+  background: #f8f8f8;
+
+  border: 1px solid #cfcfcf;
+
+  border-radius: 6px;
+
+  padding: 12px 18px;
+
+  cursor: pointer;
+
+  transition: 0.15s;
+
+}
+
+.period-card:hover {
+
+  border-color: #3b7ddd;
+
+}
+
+.period-card.complete {
+
+  background: #eda05a;
+
+  border-color: #c97f3a;
+
+}
+
+.period-card.incomplete {
+
+  background: #ded8c0;
+
+  border-color: #c7ba87;
+
+}
+
+.period-card.selected {
+
+  background: #bfd2eb;
+
+  border: 3px solid #3677f0;
+
+}
+
+.period-card strong {
+
+  font-size: 18px;
+
+}
+
+.period-card small {
+
+  color: #555;
+
+  font-size: 13px;
+
+}
+
+/* =====================================================
+   CREATE PERIOD VIEW
+===================================================== */
+
+.mv-container {
+
+  display: flex;
+
+  flex-direction: column;
+
+  height: 100%;
+
+  min-height: 0;
+
+}
+
+/* HEADER */
+
+.mv-header {
+
+  background: #7ea34a;
+
+  color: white;
+
+  padding: 10px;
+
+  font-size: 16px;
+
+  font-weight: bold;
+
+  border: 1px solid #6b8f39;
+
+}
+
+/* FORM */
+
+.mv-body {
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 40px;
+
+  padding: 15px;
+
+  background: #cfe8a9;
+
+  border-left: 1px solid #a5c07b;
+
+  border-right: 1px solid #a5c07b;
+
+}
+
+.mv-left,
+.mv-right {
+
+  flex: 1 1 300px;
+
+}
+
+.row {
+
+  display: flex;
+
+  align-items: center;
+
+  margin-bottom: 8px;
+
+}
+
+.row label {
+
+  width: 150px;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+}
+
+.row input,
+.row select {
+
+  flex: 1;
+
+  min-width: 150px;
+
+  padding: 3px 5px;
+
+  border: 1px solid #999;
+
+}
+
+/* =====================================================
+   TABELLAREA
+===================================================== */
+
+.grid-wrapper {
+
+  flex: 1;
+
+  min-height: 250px;
+
+  overflow: auto;
+
+  border-left: 1px solid #a5c07b;
+
+  border-right: 1px solid #a5c07b;
+
+  border-bottom: 1px solid #a5c07b;
+
+  background: white;
+
+}
+
+#periodTable {
+
+  width: 100%;
+
+  border-collapse: collapse;
+
+}
+
+#periodTable thead {
+
+  position: sticky;
+
+  top: 0;
+
+  z-index: 5;
+
+}
+
+#periodTable th {
+
+  background: #b8d67f;
+
+  border: 1px solid #8ca85c;
+
+  padding: 6px;
+
+  text-align: left;
+
+  font-size: 12px;
+
+  white-space: nowrap;
+
+}
+
+#periodTable td {
+
+  border: 1px solid #d0d0d0;
+
+  padding: 4px;
+
+}
+
+#periodTable input {
+
+  width: 100%;
+
+  box-sizing: border-box;
+
+  border: 1px solid #a0a0a0;
+
+  padding: 2px;
+
+  font-size: 12px;
+
+}
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.grid-footer {
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 6px;
+
+  padding: 10px;
+
+  background: #b8d67f;
+
+  border: 1px solid #8ca85c;
+
+}
+
+.grid-footer button {
+
+  padding: 6px 12px;
+
+  background: white;
+
+  border: 1px solid #888;
+
+  cursor: pointer;
+
+  font-size: 12px;
+
+}
+
 .grid-footer button:hover {
-  background: #e0e0e0;
+
+  background: #f1f1f1;
+
+}
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.modal-content {
+
+  background: white;
+
+  border-radius: 8px;
+
+  padding: 20px;
+
+}
+
+.modal-content h3 {
+
+  margin-top: 0;
+
+}
+
+/* =====================================================
+   SCROLLBAR
+===================================================== */
+
+.grid-wrapper::-webkit-scrollbar,
+.period-list::-webkit-scrollbar {
+
+  width: 10px;
+
+  height: 10px;
+
+}
+
+.grid-wrapper::-webkit-scrollbar-thumb,
+.period-list::-webkit-scrollbar-thumb {
+
+  background: #b0b0b0;
+
+}
+
+.grid-wrapper::-webkit-scrollbar-track,
+.period-list::-webkit-scrollbar-track {
+
+  background: #efefef;
+
 }
