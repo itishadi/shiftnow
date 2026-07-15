@@ -1,0 +1,91 @@
+.employee-card {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin: 5px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.employee-card button {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 5px;
+}
+.employee-card button.editBtn {
+  background: #3498db;
+}
+.employee-card button.editBtn:hover {
+  background: #2980b9;
+}
+.employee-card button:hover {
+  background: #c0392b;
+}
+.employee-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+.employee-form input {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.employee-form button {
+  background: #2ecc71;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}
+#detailForm .form-group {
+  display: flex;
+  flex-direction: column;
+}
+#detailForm .form-group label {
+  font-weight: 600;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+#detailForm .form-group input {
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+#detailForm hr {
+  margin: 10px 0;
+}
+#detailForm h3 {
+  margin: 5px 0;
+}
+.export-import {
+  margin: 10px 0;
+  display: flex;
+  gap: 10px;
+}
+.export-import button {
+  padding: 6px 14px;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.export-import button:hover {
+  background: #2980b9;
+}
+
+.employee-card button.downloadBtn {
+  background: #f39c12;
+  color: white;
+}
+.employee-card button.downloadBtn:hover {
+  background: #e67e22;
+}

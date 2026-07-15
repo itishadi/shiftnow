@@ -1,0 +1,11 @@
+.btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.btn-primary { background: #3498db; color: white; }
+.btn-success { background: #2ecc71; color: white; }
+.btn-danger { background: #e74c3c; color: white; }
+.btn-warning { background: #f1c40f; color: #333; }

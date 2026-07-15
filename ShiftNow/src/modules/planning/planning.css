@@ -1,0 +1,546 @@
+.schedule-overview {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: #d7d7d7;
+}
+
+.heroma-toolbar {
+  height: 42px;
+  background: #d3cec4;
+  border-bottom: 1px solid #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.heroma-wrapper {
+  flex: 1;
+  overflow: auto;
+  background: #efefef;
+}
+
+.heroma-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 13px;
+}
+
+.heroma-table th,
+.heroma-table td {
+  border: 1px solid #b4b4b4;
+}
+
+.heroma-header-row th {
+  background: #ece8df;
+  height: 30px;
+  text-align: center;
+}
+
+.sunday-header {
+  color: #d60000;
+}
+
+.heroma-person-row {
+  cursor: pointer;
+}
+
+.heroma-person-cell {
+  background: linear-gradient(
+    to bottom,
+    #8fb1dc,
+    #4a74b5
+  );
+  color: white;
+  font-weight: bold;
+  padding: 4px 10px;
+  height: 26px;
+}
+
+.heroma-person-row:hover .heroma-person-cell {
+  background: linear-gradient(
+    to bottom,
+    #9dc0ea,
+    #6088c8
+  );
+}
+
+
+.week-label {
+  font-weight: bold;
+  padding: 4px 4px 0 4px;
+}
+
+.week-range {
+  padding: 0 4px 4px 4px;
+  font-size: 11px;
+  color: #555;
+}
+.day-cell {
+  position: relative;
+  min-height: 50px;
+  height: 50px;
+  background: white;
+}
+
+.day-number {
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  font-size: 11px;
+  color: #555;
+}
+
+.overview-footer {
+  padding: 8px;
+  border-top: 1px solid #aaa;
+  background: #d6d1c7;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.overview-footer button {
+  padding: 6px 14px;
+  border: 1px solid #888;
+  background: white;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.overview-footer button:hover {
+  background: #f7f7f7;
+}
+
+.grid-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.grid-header {
+  padding: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  border-bottom: 1px solid #ccc;
+}
+
+.grid-scroll-wrapper {
+  flex: 1;
+  overflow: auto;
+}
+
+#scheduleTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#scheduleTable th,
+#scheduleTable td {
+  border: 1px solid #ccc;
+  padding: 4px;
+}
+
+#scheduleTable input {
+  width: 100%;
+}
+
+.grid-actions {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  border-top: 1px solid #ccc;
+  flex-wrap: wrap;
+}
+
+.grid-actions button {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.mv-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mv-body {
+  display: flex;
+  gap: 20px;
+}
+
+.mv-left,
+.mv-right {
+  flex: 1;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.row label {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.grid-wrapper {
+  overflow: auto;
+}
+
+.grid-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.grid-footer button {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.day-slot {
+
+  position: relative;
+
+  width: 100%;
+
+  height: 24px;
+
+  cursor: pointer;
+
+}
+
+.empty-shift {
+
+  position: absolute;
+
+  left: 0;
+
+  top: 0;
+
+  right: 0;
+
+  height: 22px;
+
+  border: 1px dashed #bdbdbd;
+
+  color: #777;
+
+  text-align: center;
+
+  line-height: 22px;
+
+  background: #fafafa;
+
+}
+
+.empty-shift:hover {
+
+  background: #eef6ff;
+
+}
+
+.shift-block {
+
+  position: absolute;
+
+  top: 2px;
+
+  height: 20px;
+
+  background: #008000;
+
+  color: #fff;
+
+  border: 1px solid #004d00;
+
+  border-radius: 0;
+
+  font-size: 11px;
+
+  line-height: 18px;
+
+  text-align: center;
+
+  overflow: hidden;
+
+  white-space: nowrap;
+
+  box-sizing: border-box;
+
+  padding: 0 2px;
+
+  z-index: 2;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 2px;
+
+}
+
+.shift-block:hover {
+
+  filter: brightness(1.1);
+
+}
+
+.selected-week {
+
+  background: #cfe0ff !important;
+
+}
+
+.sunday-header {
+
+  color: red;
+
+}
+
+.holiday-header {
+
+  color: red;
+
+  font-weight: bold;
+
+}
+
+.heroma-week-row td {
+
+  position: relative;
+
+  height: 18px;
+
+  padding: 0;
+
+  background: #f2f2f2;
+
+}
+
+.heroma-week-row td:first-child {
+
+  background: #e4dfd6;
+
+}
+
+.week-label {
+
+  font-weight: bold;
+
+}
+
+.week-range {
+
+  font-size: 11px;
+
+  color: #555;
+
+}
+
+.shift-type-default {
+
+  background: #008000;
+
+  color: white;
+
+  border: 1px solid #004d00;
+
+}
+
+.shift-type-u {
+
+  background: #008000;
+
+  color: white;
+
+  border: 1px solid #004d00;
+
+}
+
+.shift-type-t {
+
+  background: #ff66cc;
+
+  color: black;
+
+  border: 1px solid #cc3399;
+
+}
+
+.shift-type-s {
+
+  background: #0066ff;
+
+  color: white;
+
+  border: 1px solid #003d99;
+
+}
+
+.shift-type-adm {
+
+  background: #dce8ff;
+
+  color: black;
+
+  border: 1px solid #8aa8e8;
+
+}
+
+.shift-input {
+
+  width: 100%;
+
+  height: 100%;
+
+  min-height: 24px;
+
+  border: none;
+
+  background: transparent;
+
+  text-align: center;
+
+  font-size: 12px;
+
+  outline: none;
+
+  cursor: text;
+
+}
+
+.shift-input:focus {
+
+  background: #fff7cc;
+
+}
+
+.shift-type-ssk {
+
+  background: #f07ce4;
+
+  color: #000;
+
+  border: 1px solid #a845a0;
+
+}
+
+.shift-type-usk {
+
+  background: #6cc96c;
+
+  color: #000;
+
+  border: 1px solid #2f8f2f;
+
+}
+
+.timeblocks-panel {
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 6px;
+
+  padding: 8px;
+
+  border-top: 1px solid #bdbdbd;
+
+  background: #f4f4f4;
+
+}
+
+.timeblock-item {
+
+  min-width: 140px;
+
+  padding: 4px 6px;
+
+  border: 1px solid #ccc;
+
+
+  font-size: 11px;
+
+}
+
+.add-timeblock {
+
+  cursor: pointer;
+
+  font-weight: bold;
+
+  text-align: center;
+
+  background: #eef5ff;
+
+}
+
+.add-timeblock:hover {
+
+  background: #dcecff;
+
+}
+.active-cell {
+
+  outline: 2px dashed #ff6600;
+
+  outline-offset: -2px;
+
+  background: #fff7cc;
+
+}
+.cell-editor {
+
+  width: 100%;
+
+  height: 24px;
+
+  line-height: 24px;
+
+  text-align: center;
+
+  font-size: 12px;
+
+  cursor: text;
+
+  user-select: none;
+
+}
+
+.shift-type-night {
+
+  background: #8b5cf6;
+
+  color: white;
+
+  border: 1px solid #5b21b6;
+
+}
+
+.break-box {
+
+  display: inline-block;
+
+  width: 6px;
+
+  height: 100%;
+
+  background: white;
+
+  margin: 0 2px;
+
+}
+
+.inactive-day {
+  background: #d9d9d9 !important;
+  opacity: 0.6;
+  cursor: not-allowed;
+}

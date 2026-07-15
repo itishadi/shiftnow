@@ -1,0 +1,34 @@
+import { formatDate } from "./formatDate.js";
+
+export function isSwedishHoliday(
+  date
+) {
+  const value =
+    formatDate(date);
+
+  const holidays = [
+    "2026-01-01",
+    "2026-01-06",
+
+    "2026-04-03",
+    "2026-04-05",
+    "2026-04-06",
+
+    "2026-05-01",
+
+    "2026-05-14",
+
+    "2026-06-06",
+
+    "2026-06-20",
+
+    "2026-10-31",
+
+    "2026-12-25",
+    "2026-12-26"
+  ];
+
+  return holidays.includes(
+    value
+  );
+}
