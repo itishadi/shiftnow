@@ -17,12 +17,12 @@ from "../modules/periods/CreatePeriodView.js";
 import {
   ScheduleGrid
 }
-from "../modules/planning/ScheduleGrid.js";
+from "../modules/planning/views/ScheduleGrid.js";
 
 import {
   ScheduleOverview
 }
-from "../modules/planning/ScheduleOverview.js";
+from "../modules/planning/views/ScheduleOverview.js";
 
 import {
   EmployeeSelector
