@@ -1,169 +1,244 @@
-# ShiftNow
+ShiftNow
+🚧 Status: Active Development
+ShiftNow is a modern workforce scheduling and planning platform designed for organizations that manage shift-based workforces.
+The application focuses on speed, simplicity, and flexibility while providing planners, managers, and administrators with powerful tools for scheduling, staffing, and workforce management.
 
-🚧 **Project Status: Under Active Development**
+Overview
+ShiftNow combines workforce planning, employee administration, shift management, and staffing calculations into a single application.
+The platform is designed as a lightweight and fast alternative to traditional workforce management systems while maintaining an intuitive user experience.
 
-ShiftNow is a modern workforce scheduling and staff planning system built for organizations that work with shifts, rotating schedules, and staffing management.
+Core Features
+Employee Management
 
-The goal of ShiftNow is to provide a fast, intuitive, and flexible alternative to traditional scheduling systems while keeping the user experience simple and efficient.
+Create and manage employees
+Employment period management
+Employment percentage management
+Address and contact information
+Professional role and competence management
+Employee import and administration
 
-## Features
 
-### Employee Management
+Planning Period Management
 
-- Create and manage employees
-- Employment periods
-- Employment percentage
-- Personal information management
+Create planning periods
+Rolling planning periods
+Period validation
+Period overview
+Planning approvals
+Schedule publication workflow
 
-### Planning Periods
 
-- Create planning periods
-- Week-based schedule overview
-- Expand and collapse employee schedules
-- Automatic week generation
+Schedule Planning
 
-### Shift Templates
+Interactive scheduling interface
+Weekly schedule overview
+Expandable employee schedules
+Automatic week generation
+Planning period navigation
+Fast keyboard-driven workflow
 
-- Create custom shift templates
-- Edit, duplicate, and delete templates
-- Drag-and-drop scheduling
-- Break and meal-break support
-- Custom shift colors
 
-### Color-Based Role System
+Shift Templates
+Create reusable shift templates for faster planning.
+Features:
 
-- Create custom role categories
-- User-defined short codes
-- 12 selectable colors
-- Automatic color assignment
-- Color-coded scheduling
+Custom shift templates
+Template duplication
+Template editing
+Template deletion
+Start and end time management
+Break handling
+Overnight shift support
 
+
+Shift Roles & Color Management
+Create custom role categories with automatic visual representation.
 Examples:
 
-- SSK
-- USK
-- ADM
-- T
-- NATT
-- KÖK
+SSK
+USK
+ADM
+NATT
+TEAM
+KÖK
+REHAB
 
-### Manual Shift Entry
+Features:
 
-Create shifts directly from the keyboard:
+Custom role creation
+User-defined short codes
+12 selectable colors
+Automatic color assignment
+Color-coded schedule visualization
 
-```text
-1330 2200 30 ssk
-```
 
-or
+Manual Shift Entry
+ShiftNow supports rapid keyboard-based shift creation.
+Examples:
+Plain Text1330 2200 30 sskVisa fler rader
+Plain Text2100 0715 m uskVisa fler rader
+Automatic processing:
 
-```text
-2100 0715 m usk
-```
+Start time detection
+End time detection
+Overnight shift handling
+Break calculations
+Meal-break handling
+Duration calculations
+Role assignment
+Color assignment
 
-The system automatically:
 
-- Parses start and end times
-- Handles overnight shifts
-- Calculates break times
-- Supports meal breaks
-- Calculates shift duration
-- Applies role-based colors
+Workforce Calculations
+Automatic workforce calculations include:
 
-### Workforce Calculations
+Scheduled hours
+Worked hours
+Planned hours
+Underplanned hours
+Overplanned hours
+Shift duration calculations
+Staffing summaries
 
-- Worked time calculations
-- Planned time calculations
-- Underplanned hours
-- Overplanned hours
-- Shift duration calculations
 
-### User Interface
+Employee Schedule Management
 
-- Interactive schedule grid
-- Expandable weekly schedules
-- Color-coded shift visualization
-- Drag-and-drop scheduling
-- Keyboard-driven workflow
-- Fast planning experience
+Employee-based schedule planning
+Individual schedules
+Expand/collapse employee rows
+Shift overview per employee
+Schedule status monitoring
 
-## Technologies
 
-- HTML5
-- CSS3
-- JavaScript (ES Modules)
-- Local Storage
+Staffing & Resource Planning
 
-## Project Structure
+Staffing visibility across planning periods
+Coverage monitoring
+Planned staffing comparison
+Resource balancing
 
-```text
-src/
-├── core/
-│   ├── app.js
-│   └── router.js
-│
-├── modules/
-│   ├── employees/
-│   ├── periods/
-│   ├── planning/
-│   └── shifts/
-│
-├── shared/
-│   ├── components/
-│   └── state/
-│
-└── utils/
-```
 
-## Current Capabilities
+User Interface
+ShiftNow focuses on productivity and speed.
+Features:
 
-✅ Employee management
+Interactive schedule grid
+Modern planning views
+Drag-and-drop scheduling
+Keyboard-driven workflow
+Responsive layouts
+Color-coded shifts
+Fast navigation between periods
 
-✅ Period management
 
-✅ Weekly schedule planning
+Data Management
+Current storage:
 
-✅ Custom shift templates
+Local Storage persistence
+Automatic data saving
+Planning period persistence
+Employee persistence
+Shift persistence
 
-✅ Drag and drop scheduling
 
-✅ Manual shift entry
+Technologies
+Frontend:
 
-✅ Color-based role management
+HTML5
+CSS3
+JavaScript (ES Modules)
 
-✅ Break and meal-break handling
+Storage:
 
-✅ Worked hours calculations
+Local Storage
 
-✅ Underplanned and overplanned calculations
+Architecture:
 
-✅ Expandable employee schedules
+Modular ES Module Architecture
+Services
+Views
+Templates
+Helpers
+Validation
+Shared State Management
 
-## Roadmap
 
-Planned features include:
+Project Structure
+Plain Textsrc/├── core/│   ├── app.js│   └── router.js│├── modules/││   ├── employees/│   │   ├── views/│   │   ├── services/│   │   ├── helpers/│   │   └── validation/││   ├── periods/│   │   ├── views/│   │   ├── services/│   │   ├── templates/│   │   ├── modals/│   │   ├── rows/│   │   ├── helpers/│   │   └── validation/││   ├── planning/│   │   ├── views/│   │   ├── services/│   │   ├── rows/│   │   ├── toolbars/│   │   └── timeblocks/││   └── shifts/│├── shared/│   ├── components/│   └── state/│└── utils/Visa fler rader
 
-- Vacation management
-- Absence management
-- Statistics and reports
-- PDF export
-- Payroll export
-- Firebase integration
-- Cloud synchronization
-- Multi-user support
-- Role-based permissions
-- Mobile-friendly interface
-- Notifications and reminders
-- Advanced workforce analytics
+Current Capabilities
+✅ Employee Management
+✅ Planning Period Management
+✅ Schedule Planning
+✅ Schedule Overview
+✅ Shift Templates
+✅ Shift Role Management
+✅ Color-Based Scheduling
+✅ Manual Shift Entry
+✅ Drag & Drop Scheduling
+✅ Staffing Calculations
+✅ Employee Scheduling
+✅ Local Storage Persistence
+✅ Modular Application Architecture
 
-## Vision
+Roadmap
+Planned future development:
+Workforce Management
 
-ShiftNow aims to become a modern and flexible workforce management platform that simplifies scheduling, staffing, and workforce planning for organizations of all sizes.
+Vacation management
+Leave management
+Absence management
+On-call planning
 
-By combining simplicity, speed, and customization, ShiftNow provides planners and managers with powerful tools while maintaining an intuitive user experience.
+Reporting
 
-## Author
+Statistics
+Staffing reports
+Workforce analysis
+Planning KPIs
 
-Developed by **Hadi Rasouli**
+Integrations
 
-.NET Developer | System Developer | Workforce Planning Enthusiast
+PDF Export
+Excel Export
+Payroll Export
+Heroma Integration
+Firebase Integration
+
+Cloud Features
+
+Authentication
+Cloud synchronization
+Multi-user support
+Role-based permissions
+
+Mobile Experience
+
+Responsive mobile design
+Tablet optimization
+Progressive Web App (PWA)
+
+Notifications
+
+Planning reminders
+Approval reminders
+Schedule publication notifications
+
+
+Vision
+ShiftNow aims to become a modern workforce management platform that combines:
+
+Workforce Planning
+Scheduling
+Staffing Management
+Employee Administration
+Workforce Analytics
+
+into a single fast, flexible, and user-friendly solution.
+The vision is to provide organizations with a modern alternative to traditional workforce management systems while maintaining simplicity, speed, and full customization.
+
+Author
+Hadi Rasouli
+.NET Developer • System Developer • Workforce Planning Enthusiast
+Project: ShiftNow
+Status: Active Development 🚀
