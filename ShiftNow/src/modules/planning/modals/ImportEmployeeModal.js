@@ -1,5 +1,5 @@
 import { getEmployees }
-    from "../../employees/employeeService.js";
+    from "../../employees/services/employeeService.js";
 
 export function showImportModal({
     rows,

@@ -6,7 +6,7 @@
 import {
     removePeriod,
     getPeriods
-} from "../periodService.js";
+} from "../services/periodService.js";
 
 export function setupPeriodToolbar({
     toolbar,

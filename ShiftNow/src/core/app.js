@@ -2,7 +2,7 @@ import {
   getPeriods,
   addPeriod
 }
-from "../modules/periods/periodService.js";
+from "../modules/periods/services/periodService.js";
 
 import {
   PeriodList
@@ -12,7 +12,7 @@ from "../modules/periods/PeriodList.js";
 import {
   CreatePeriodView
 }
-from "../modules/periods/CreatePeriodView.js";
+from "../modules/periods/views/CreatePeriodView.js";
 
 import {
   ScheduleGrid

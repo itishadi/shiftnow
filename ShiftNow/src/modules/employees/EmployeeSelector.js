@@ -1,5 +1,5 @@
-import { getEmployees, addEmployee, removeEmployee, importEmployees } from "./employeeService.js";
-import { EmployeeDetailView } from "./EmployeeDetailView.js";
+import { getEmployees, addEmployee, removeEmployee, importEmployees } from "./services/employeeService.js";
+import { EmployeeDetailView } from "./views/EmployeeDetailView.js";
 
 export function EmployeeSelector() {
   const container = document.createElement("div");

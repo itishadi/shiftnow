@@ -1,5 +1,5 @@
 import { getPeriodStatus }
-    from "../periodService.js";
+    from "../services/periodService.js";
 
 import {
     state,

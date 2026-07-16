@@ -1,16 +1,3 @@
-// import {
-//   getPeriodStatus,
-//   removePeriod,
-//   getPeriods
-// }
-// from "./periodService.js";
-
-// import {
-//   state,
-//   setState
-// }
-// from "../shared/state/store.js";
-
 import { renderPeriodCards }
     from "./rows/renderPeriodCards.js";
 
